@@ -36,7 +36,7 @@ export default function SmbepaResponde() {
               </p>
               
               <p>
-                Agora, pelo Adota Pet, você pode entrar em contato diretamente com a Secretaria para enviar:
+                Agora, pelo nosso site, você pode entrar em contato diretamente com a Secretaria para enviar:
               </p>
 
               <ul className="list-disc pl-5 space-y-1">
@@ -51,7 +51,7 @@ export default function SmbepaResponde() {
               </ul>
 
               <p>
-                Funciona assim: você envia sua solicitação diretamente pelo site do Adota Pet, e a equipe responsável fará o atendimento e retorno pelos canais informados no cadastro.
+                Funciona assim: você envia sua solicitação diretamente pelo site da Secretaria, e a equipe responsável fará o atendimento e retorno pelos canais informados no cadastro.
               </p>
 
               <p>
