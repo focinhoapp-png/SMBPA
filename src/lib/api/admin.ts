@@ -92,6 +92,16 @@ export async function getDashboardStats() {
     { count: totalUsuarios },
     { count: contatosPendentes },
     { count: adocoesPendentes },
+    { count: petsMachos },
+    { count: petsFemeas },
+    { count: petsCastrados },
+    { count: petsParaAdocao },
+    { count: petsComunitarios },
+    { count: usuariosProprietarios },
+    { count: usuariosVeterinarios },
+    { count: usuariosProtetores },
+    { count: usuariosEstabelecimento },
+    { count: usuariosJuridica },
   ] = await Promise.all([
     supabase.from('pets').select('*', { count: 'exact', head: true }),
     supabase.from('pets').select('*', { count: 'exact', head: true }).eq('status', 'disponivel'),
@@ -99,6 +109,16 @@ export async function getDashboardStats() {
     supabase.from('usuarios').select('*', { count: 'exact', head: true }),
     supabase.from('contatos_smbepa').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
     supabase.from('solicitacoes_adocao').select('*', { count: 'exact', head: true }).eq('status', 'pendente'),
+    supabase.from('pets').select('*', { count: 'exact', head: true }).eq('sexo', 'macho'),
+    supabase.from('pets').select('*', { count: 'exact', head: true }).eq('sexo', 'femea'),
+    supabase.from('pets').select('*', { count: 'exact', head: true }).eq('castrado', true),
+    supabase.from('pets').select('*', { count: 'exact', head: true }).eq('para_adocao', true),
+    supabase.from('pets').select('*', { count: 'exact', head: true }).eq('comunitario', true),
+    supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('tipo_perfil', 'fisica'),
+    supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('tipo_perfil', 'veterinario'),
+    supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('tipo_perfil', 'protetor'),
+    supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('tipo_perfil', 'estabelecimento'),
+    supabase.from('usuarios').select('*', { count: 'exact', head: true }).eq('tipo_perfil', 'juridica'),
   ]);
 
   return {
@@ -108,8 +128,19 @@ export async function getDashboardStats() {
     totalUsuarios: totalUsuarios ?? 0,
     contatosPendentes: contatosPendentes ?? 0,
     adocoesPendentes: adocoesPendentes ?? 0,
+    petsMachos: petsMachos ?? 0,
+    petsFemeas: petsFemeas ?? 0,
+    petsCastrados: petsCastrados ?? 0,
+    petsParaAdocao: petsParaAdocao ?? 0,
+    petsComunitarios: petsComunitarios ?? 0,
+    usuariosProprietarios: usuariosProprietarios ?? 0,
+    usuariosVeterinarios: usuariosVeterinarios ?? 0,
+    usuariosProtetores: usuariosProtetores ?? 0,
+    usuariosEstabelecimento: usuariosEstabelecimento ?? 0,
+    usuariosJuridica: usuariosJuridica ?? 0,
   };
 }
+
 
 // ─── Admin: listar pets (sem RLS) via service role ou direto ─────────────────
 export async function adminListarPets(page = 1, limit = 20, filtros: any = {}) {

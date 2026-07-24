@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { clearAdminSession, getAdminUser } from '../../lib/api/admin';
-import { LayoutDashboard, Users, PawPrint, Heart, MessageSquare, LogOut, Settings, Image, Calendar, BookOpen, Activity, Stethoscope, HandHeart, PieChart, ClipboardList } from 'lucide-react';
+import { LayoutDashboard, Users, PawPrint, Heart, MessageSquare, LogOut, UserCircle, Image, Calendar, BookOpen, Activity, Stethoscope, HandHeart, PieChart, ClipboardList } from 'lucide-react';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
@@ -26,7 +26,7 @@ export default function AdminLayout() {
     { name: 'Lista de Veterinários', path: '/admin/veterinarios', icon: Stethoscope },
     { name: 'Lista de Protetores', path: '/admin/protetores', icon: HandHeart },
     { name: 'Logs', path: '/admin/logs', icon: Activity },
-    { name: 'Configurações', path: '/admin/configuracoes', icon: Settings },
+    { name: 'Meus Dados', path: '/admin/configuracoes', icon: UserCircle },
   ];
 
   return (
