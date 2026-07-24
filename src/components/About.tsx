@@ -53,7 +53,7 @@ export default function About() {
               <ul className="space-y-2 mt-4 text-gray-700">
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-guapi-orange mt-2 block shrink-0" />
-                  Garantia de saúde (animais microchipados e vacinados)
+                  Garantia de saúde (animais castrados, microchipados e vacinados)
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-1.5 h-1.5 rounded-full bg-guapi-orange mt-2 block shrink-0" />
