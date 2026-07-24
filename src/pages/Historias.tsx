@@ -1,37 +1,21 @@
-import React from 'react';
+import { useState, useEffect } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { Play } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-const videos = [
-  {
-    id: 1,
-    title: 'A transformação do valente Thor',
-    thumb: 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=600',
-    duration: '03:50',
-  },
-  {
-    id: 2,
-    title: 'O recomeço da pequena Luna',
-    thumb: 'https://images.unsplash.com/photo-1583337130417-3346a1be7dee?auto=format&fit=crop&q=80&w=600',
-    duration: '05:39',
-  },
-  {
-    id: 3,
-    title: 'A nova chance de Bilbo',
-    thumb: 'https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=600',
-    duration: '00:31',
-  },
-  {
-    id: 4,
-    title: 'Um lar para a Amora',
-    thumb: 'https://images.unsplash.com/photo-1548199973-03cce0bbc87b?auto=format&fit=crop&q=80&w=600',
-    duration: '04:12',
-  }
-];
+import { listarHistorias, type Historia } from '../lib/api/conteudo';
 
 export default function Historias() {
+  const [videos, setVideos] = useState<Historia[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listarHistorias()
+      .then(setVideos)
+      .catch(() => setVideos([]))
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
     <div className="font-sans bg-white pt-[80px] min-h-screen flex flex-col">
       <Header />
@@ -60,40 +44,49 @@ export default function Historias() {
             </p>
 
             {/* Video Gallery */}
-            <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
-              {videos.map((video) => (
-                <div key={video.id} className="relative w-72 h-40 sm:w-80 sm:h-48 flex-shrink-0 bg-gray-900 rounded-sm overflow-hidden group cursor-pointer snap-start">
-                  <img 
-                    src={video.thumb} 
-                    alt={video.title} 
-                    className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-300"
-                  />
-                  {/* Play Button Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-[#00a8ff] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-md">
-                      <Play className="w-6 h-6 text-white ml-1 fill-white" />
+            {loading ? (
+              <div className="flex gap-4 overflow-x-auto pb-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="w-72 h-40 sm:w-80 sm:h-48 flex-shrink-0 bg-gray-200 rounded-sm animate-pulse" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex gap-4 overflow-x-auto pb-4 snap-x">
+                {videos.map((video) => (
+                  <div key={video.id} className="relative w-72 h-40 sm:w-80 sm:h-48 flex-shrink-0 bg-gray-900 rounded-sm overflow-hidden group cursor-pointer snap-start">
+                    {video.thumb_url && (
+                      <img
+                        src={video.thumb_url}
+                        alt={video.titulo}
+                        className="w-full h-full object-cover opacity-80 group-hover:opacity-60 transition-opacity duration-300"
+                      />
+                    )}
+                    {/* Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-[#00a8ff] rounded-full flex items-center justify-center transform group-hover:scale-110 transition-transform duration-300 shadow-md">
+                        <Play className="w-6 h-6 text-white ml-1 fill-white" />
+                      </div>
+                    </div>
+                    
+                    {/* Video Controls Bar */}
+                    <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent flex items-center space-x-2 text-white text-xs font-semibold">
+                      <Play className="w-4 h-4 fill-white" />
+                      <span>{video.duracao}</span>
+                      <div className="flex-1 h-1 bg-white/30 rounded overflow-hidden">
+                        <div className="w-1/3 h-full bg-[#00a8ff]"></div>
+                      </div>
                     </div>
                   </div>
-                  
-                  {/* Mock Video Controls Bar */}
-                  <div className="absolute bottom-0 left-0 right-0 p-2 bg-gradient-to-t from-black/80 to-transparent flex items-center space-x-2 text-white text-xs font-semibold">
-                    <Play className="w-4 h-4 fill-white" />
-                    <span>{video.duration}</span>
-                    <div className="flex-1 h-1 bg-white/30 rounded overflow-hidden">
-                      <div className="w-1/3 h-full bg-[#00a8ff]"></div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
 
-            {/* Carousel Pagination indicator */}
+            {/* Pagination indicator */}
             <div className="flex justify-center mt-6 space-x-2">
               <div className="w-2 h-2 rounded-full bg-blue-600"></div>
               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
               <div className="w-2 h-2 rounded-full bg-gray-300"></div>
             </div>
-
           </div>
         </section>
       </main>

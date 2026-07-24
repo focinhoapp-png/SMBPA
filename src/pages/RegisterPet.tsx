@@ -6,6 +6,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { FileUploadArea } from '../components/FileUploadArea';
 import { dogBreeds, catBreeds, dogColors, catColors } from '../data/breedsAndColors';
+import { cadastrarPet } from '../lib/api/pets';
 
 // Helper function to create image and canvas for cropping
 const createImage = (url: string): Promise<HTMLImageElement> =>
@@ -58,6 +59,7 @@ export async function getCroppedImg(
 const RegisterPet = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isMicrochipado, setIsMicrochipado] = useState(false);
+  const [createdPetId, setCreatedPetId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [formData, setFormData] = useState({
@@ -178,6 +180,15 @@ const RegisterPet = () => {
   const [showDeclaroModal, setShowDeclaroModal] = useState(false);
   const navigate = useNavigate();
 
+  const handleGoToRg = () => {
+    setShowRgModal(false);
+    if (createdPetId) {
+      navigate(`/rg-animal/${createdPetId}`);
+    } else {
+      navigate('/meus-pets');
+    }
+  };
+
   const handleFinalSubmit = () => {
     if (!isFormValid()) {
       setShowErrors(true);
@@ -187,14 +198,72 @@ const RegisterPet = () => {
     }
   };
 
-  const handleConfirmSubmit = () => {
+  const handleConfirmSubmit = async () => {
     setShowConfirmModal(false);
-    setShowRgModal(true);
+    try {
+      const imagens = [];
+      
+      if (croppedImage) {
+        try {
+          const response = await fetch(croppedImage);
+          const blob = await response.blob();
+          const rgFile = new File([blob], 'rg_photo.jpg', { type: 'image/jpeg' });
+          imagens.push(rgFile);
+        } catch (e) {
+          console.error("Erro ao converter foto do RG:", e);
+        }
+      }
+
+      if (formData.imagem1File) imagens.push(formData.imagem1File);
+      if (formData.imagem2File) imagens.push(formData.imagem2File);
+      if (formData.imagem3File) imagens.push(formData.imagem3File);
+      if (formData.imagem4File) imagens.push(formData.imagem4File);
+
+      const especieMapa: Record<string, 'cachorro' | 'gato'> = {
+        'Canina': 'cachorro',
+        'Felina': 'gato'
+      };
+      
+      const sexoMapa: Record<string, 'macho' | 'femea'> = {
+        'Macho': 'macho',
+        'Fêmea': 'femea'
+      };
+
+      const isDataIso = formData.dataNascimento ? formData.dataNascimento.split('/').reverse().join('-') : undefined;
+
+      const pet = await cadastrarPet({
+        nome: formData.nome,
+        especie: especieMapa[formData.especie] || 'cachorro',
+        sexo: sexoMapa[formData.sexo] || 'macho',
+        raca: formData.raca,
+        cor: formData.cor,
+        data_nascimento: isDataIso,
+        idade_meses: formData.idadeMeses ? parseInt(formData.idadeMeses) : undefined,
+        porte: 'medio', // porte não tem no layout mock, adicionado padrão
+        castrado: formData.castrado === 'Sim',
+        microchipado: isMicrochipado,
+        numero_microchip: formData.numeroMicrochip,
+        comunitario: formData.comunitario === 'Sim',
+        para_adocao: formData.adocao === 'Sim',
+        bairro: formData.bairro,
+        sociavel_animais: formData.sociavelAnimais === 'Sim',
+        sociavel_pessoas: formData.sociavelPessoas === 'Sim',
+        descricao: formData.descricao,
+        status: formData.adocao === 'Sim' ? 'disponivel' : 'cadastrado',
+      }, imagens);
+
+      if (pet?.id) {
+        setCreatedPetId(pet.id);
+      }
+      setShowRgModal(true);
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao cadastrar pet.');
+    }
   };
 
-  const handleGoToRg = () => {
-    setShowRgModal(false);
-    navigate('/rg-animal/1'); // redirecting to a dummy id for the prototype
+  const handleGoToRgButton = () => {
+    handleGoToRg();
   };
 
   const ErrorMessage = ({ condition }: { condition: boolean }) => {
@@ -814,7 +883,6 @@ const RegisterPet = () => {
         </div>
       )}
 
-      <Footer />
     </div>
   );
 };

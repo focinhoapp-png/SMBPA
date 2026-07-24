@@ -1,53 +1,50 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { PawPrint } from 'lucide-react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
-import { mockPets, getPetSubTitle } from '../data/pets';
+import PetImageSlider from '../components/PetImageSlider';
+import { listarPets, type Pet } from '../lib/api/pets';
 
 export default function Adopt() {
+  const [pets, setPets] = useState<Pet[]>([]);
+  const [loading, setLoading] = useState(true);
+
   const [filterSpecies, setFilterSpecies] = useState('');
   const [filterGender, setFilterGender] = useState('');
   const [filterAge, setFilterAge] = useState('');
   const [filterSize, setFilterSize] = useState('');
   const [filterColor, setFilterColor] = useState('');
 
-  const filteredPets = mockPets.filter(pet => {
-    if (filterSpecies && pet.species !== filterSpecies) return false;
-    if (filterGender && pet.gender !== filterGender) return false;
+  useEffect(() => {
+    // Busca até 100 pets (disponíveis e em_processo)
+    listarPets({ limit: 100 })
+      .then(({ pets }) => setPets(pets.filter(p => p.status !== 'adotado' && p.status !== 'cadastrado')))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredPets = pets.filter(pet => {
+    if (filterSpecies && pet.especie.toLowerCase() !== filterSpecies.toLowerCase()) return false;
+    if (filterGender && pet.sexo.toLowerCase() !== filterGender.toLowerCase()) return false;
     
     if (filterAge) {
-      const ageStr = pet.age.toLowerCase();
-      // Only "meses" alone or exactly "1 ano" count as under 1. 
-      // If it contains "anos" (plural) or "1 ano e" or "1 ano," it's > 1 year.
-      let isUnder1 = false;
-      if (ageStr === '1 ano' || (!ageStr.includes('ano') && ageStr.includes('mes'))) {
-        isUnder1 = true;
-      }
+      const isUnder1 = (pet.idade_meses ?? 0) <= 12;
       if (filterAge === '0 a 1 ano' && !isUnder1) return false;
       if (filterAge === 'Mais de 1 ano' && isUnder1) return false;
     }
 
-    if (filterSize && pet.size !== filterSize) return false;
-    
-    if (filterColor) {
-      let petColor = pet.color || 'Caramelo';
-      if (!pet.color) {
-        if (pet.id === '2' || pet.id === '5' || pet.id === '7') petColor = 'Branca';
-        if (pet.id === '6' || pet.id === '8') petColor = 'Preta';
-      }
-      if (petColor.toLowerCase() !== filterColor.toLowerCase()) return false;
-    }
+    if (filterSize && pet.porte?.toLowerCase() !== filterSize.toLowerCase()) return false;
+    if (filterColor && pet.cor?.toLowerCase() !== filterColor.toLowerCase()) return false;
 
     return true;
   });
   
-  const finalFilteredPets = [...filteredPets.filter(pet => pet.status !== 'adotado')]
-    .sort((a, b) => parseInt(b.id) - parseInt(a.id))
+  const finalFilteredPets = [...filteredPets]
     .sort((a, b) => {
       if (a.status === 'em_processo' && b.status !== 'em_processo') return 1;
       if (a.status !== 'em_processo' && b.status === 'em_processo') return -1;
-      return 0;
+      return new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime();
     });
 
   return (
@@ -55,14 +52,12 @@ export default function Adopt() {
       <Header />
       
       <div className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-20 w-full">
-        {/* Breadcrumb */}
         <div className="py-6 text-sm text-gray-500 flex gap-2">
            <Link to="/" className="hover:text-guapi-green transition-colors">Início</Link>
            <span>&gt;</span>
            <span className="text-guapi-green font-medium">Adote um pet</span>
         </div>
 
-        {/* Banner */}
         <div className="w-full mt-4">
           <div className="relative rounded-3xl overflow-hidden shadow-xl border border-guapi-green/10 mb-12">
             <div className="absolute inset-0 z-0">
@@ -71,7 +66,6 @@ export default function Adopt() {
                 alt="Cão esperando adoção" 
                 className="w-full h-full object-cover object-center"
               />
-              {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-r from-guapi-green/95 via-guapi-green/80 to-transparent backdrop-blur-[2px]"></div>
             </div>
             
@@ -90,7 +84,6 @@ export default function Adopt() {
           </div>
         </div>
 
-        {/* Filters */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-10">
           <div className="flex flex-col gap-1">
             <label className="text-xs font-bold text-gray-700">Animal:</label>
@@ -100,8 +93,8 @@ export default function Adopt() {
               className="w-full border border-gray-300 rounded px-2 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:border-guapi-green"
             >
               <option value="">Selecione</option>
-              <option value="Cachorro">Cachorro</option>
-              <option value="Gato">Gato</option>
+              <option value="cachorro">Cachorro</option>
+              <option value="gato">Gato</option>
             </select>
           </div>
           
@@ -113,8 +106,8 @@ export default function Adopt() {
               className="w-full border border-gray-300 rounded px-2 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:border-guapi-green"
             >
               <option value="">Selecione</option>
-              <option value="Macho">Macho</option>
-              <option value="Fêmea">Fêmea</option>
+              <option value="macho">Macho</option>
+              <option value="femea">Fêmea</option>
             </select>
           </div>
 
@@ -139,66 +132,75 @@ export default function Adopt() {
               className="w-full border border-gray-300 rounded px-2 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:border-guapi-green"
             >
               <option value="">Selecione</option>
-              <option value="Pequeno">Pequeno</option>
-              <option value="Médio">Médio</option>
-              <option value="Grande">Grande</option>
+              <option value="pequeno">Pequeno</option>
+              <option value="medio">Médio</option>
+              <option value="grande">Grande</option>
             </select>
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-xs font-bold text-gray-700">Cor predominante da pelagem:</label>
+            <label className="text-xs font-bold text-gray-700">Cor predominante:</label>
             <select
               value={filterColor}
               onChange={e => setFilterColor(e.target.value)}
               className="w-full border border-gray-300 rounded px-2 py-2 text-sm text-gray-700 bg-white focus:outline-none focus:border-guapi-green"
             >
               <option value="">Selecione</option>
-              <option value="Preta">Preta</option>
-              <option value="Branca">Branca</option>
-              <option value="Caramelo">Caramelo</option>
-              <option value="Amarela">Amarela</option>
-              <option value="Marrom">Marrom</option>
-              <option value="Tigrada">Tigrada</option>
-              <option value="Cinza">Cinza</option>
+              <option value="preta">Preta</option>
+              <option value="branca">Branca</option>
+              <option value="caramelo">Caramelo</option>
+              <option value="amarela">Amarela</option>
+              <option value="marrom">Marrom</option>
+              <option value="cinza">Cinza</option>
             </select>
           </div>
         </div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {finalFilteredPets.map(pet => (
-            <div key={pet.id} className="border-2 border-guapi-green rounded-2xl overflow-hidden flex flex-col bg-white">
-              <Link to={`/descricao-pet/${pet.id}`} className="h-52 w-full relative block">
-                <img src={pet.image} alt={pet.name} className="w-full h-full object-cover" />
-              </Link>
-              
-              <div className="p-5 flex-1 flex flex-col">
-                <h3 className="text-xl font-bold text-guapi-green mb-1">{pet.name}</h3>
-                <p className="text-[11px] text-gray-500 mb-3 font-medium">
-                  {getPetSubTitle(pet)}
-                </p>
-                <p className="text-sm text-gray-600 line-clamp-4 leading-relaxed mb-6">
-                  {pet.description} Resgatado das ruas com muito amor, este lindo animal de porte {pet.size.toLowerCase()} está ansioso por uma nova família.
-                </p>
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1,2,3,4].map(i => <div key={i} className="h-[400px] bg-gray-200 animate-pulse rounded-2xl"></div>)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {finalFilteredPets.map(pet => (
+              <div key={pet.id} className="border-2 border-guapi-green rounded-2xl overflow-hidden flex flex-col bg-white">
+                <Link to={`/descricao-pet/${pet.id}`} className="h-52 w-full relative block overflow-hidden">
+                  <PetImageSlider pet={pet} />
+                </Link>
                 
-                <div className="mt-auto">
-                  {pet.status === 'em_processo' ? (
-                    <div className="block w-full text-center bg-[#ff5a4f] text-white font-semibold py-2.5 rounded-lg text-sm cursor-default">
-                      Em processo de adoção
-                    </div>
-                  ) : (
-                    <Link
-                      to={`/descricao-pet/${pet.id}`}
-                      className="block w-full text-center bg-guapi-green hover:bg-guapi-green-dark text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
-                    >
-                      Disponível para adoção
-                    </Link>
-                  )}
+                <div className="p-5 flex-1 flex flex-col">
+                  <h3 className="text-xl font-bold text-guapi-green mb-1 truncate">{pet.nome}</h3>
+                  <p className="text-[14px] text-slate-500 mb-4 font-medium capitalize leading-relaxed">
+                    {pet.sexo} • {pet.idade_meses ? (pet.idade_meses >= 12 ? `${Math.floor(pet.idade_meses/12)} ${Math.floor(pet.idade_meses/12) === 1 ? 'ano' : 'anos'}` : `${pet.idade_meses} meses`) : 'Idade desc.'} • Cor {pet.cor || 'ñ informada'} • {pet.porte === 'medio' ? 'médio' : pet.porte}
+                  </p>
+                  <p className="text-[15px] text-slate-700 line-clamp-4 leading-relaxed mb-6">
+                    {pet.descricao || `Um lindo animalzinho ansioso por uma nova família e muito amor.`}
+                  </p>
+                  
+                  <div className="mt-auto">
+                    {pet.status === 'em_processo' ? (
+                      <div className="block w-full text-center bg-[#ff5a4f] text-white font-semibold py-2.5 rounded-lg text-sm cursor-default">
+                        Em processo de adoção
+                      </div>
+                    ) : (
+                      <Link
+                        to={`/descricao-pet/${pet.id}`}
+                        className="block w-full text-center bg-guapi-green hover:bg-guapi-green-dark text-white font-semibold py-2.5 rounded-lg text-sm transition-colors"
+                      >
+                        Disponível para adoção
+                      </Link>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+            {finalFilteredPets.length === 0 && (
+              <div className="col-span-full py-12 text-center text-gray-500">
+                Nenhum pet encontrado com os filtros selecionados.
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       <Footer />

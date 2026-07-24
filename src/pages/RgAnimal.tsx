@@ -1,6 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { PawPrint, Printer } from 'lucide-react';
+import { PawPrint, Printer, Camera } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 const PawPatternBorder = ({ className = "" }) => (
   <div className={`absolute inset-0 pointer-events-none z-50 border-[16px] border-guapi-green ${className}`}>
@@ -29,6 +30,93 @@ const PawPatternBorder = ({ className = "" }) => (
 
 export default function RgAnimal() {
   const { id } = useParams();
+  const [pet, setPet] = useState<any>(null);
+  const [tutor, setTutor] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const { data: petData, error: petError } = await supabase
+          .from('pets')
+          .select('*, pet_imagens(id, url, ordem)')
+          .eq('id', id)
+          .single();
+
+        if (petError) throw petError;
+        setPet(petData);
+
+        if (petData?.tutor_id) {
+          const { data: tutorData } = await supabase
+            .from('usuarios')
+            .select('*')
+            .eq('id', petData.tutor_id)
+            .single();
+          setTutor(tutorData);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar dados do RG do pet:", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    if (id && id !== '1') {
+      loadData();
+    } else {
+      setLoading(false);
+    }
+  }, [id]);
+
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(`${window.location.origin}/descricao-pet/${pet?.id || '1'}`)}`;
+  const qrCodePingenteUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(`${window.location.origin}/descricao-pet/${pet?.id || '1'}`)}`;
+
+  const defaultPet = {
+    nome: "Caramelo",
+    sexo: "macho",
+    id: "1",
+    cor: "Caramelo",
+    microchipado: false,
+    numero_microchip: "",
+    raca: "SRD",
+    data_nascimento: "2020-12-12",
+    castrado: true,
+    bairro: "Guapimirim",
+    imagem_principal_url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80"
+  };
+
+  const defaultTutor = {
+    nome_completo: "Carbone Cartoes",
+    cpf_cnpj: "45659479000173",
+    telefone: "(35) 9 9999-9999",
+    bairro: "Três Corações",
+    cidade: "Três Corações",
+    estado: "MG"
+  };
+
+  const currentPet = pet || defaultPet;
+  const currentTutor = tutor || defaultTutor;
+  const rgPhoto = currentPet.pet_imagens?.find((img: any) => img.ordem === 0)?.url || currentPet.imagem_principal_url;
+  const displayPhotoUrl = rgPhoto;
+
+  const formattedDob = currentPet.data_nascimento
+    ? currentPet.data_nascimento.split('-').reverse().join('/')
+    : "12/12/2020";
+
+  const formattedEmissionDate = currentPet.created_at
+    ? new Date(currentPet.created_at).toLocaleDateString('pt-BR')
+    : "12/04/2025";
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center font-sans">
+        <div className="flex flex-col items-center gap-4">
+          <div className="animate-spin h-10 w-10 border-4 border-guapi-green border-t-transparent rounded-full"></div>
+          <span className="text-gray-600 font-medium">Carregando RG do animal...</span>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center font-sans">
@@ -92,8 +180,8 @@ export default function RgAnimal() {
               
               {/* Photo */}
               <div className="flex flex-col items-center w-[180px] shrink-0 z-20 mt-4">
-                <div className="w-full h-[220px] bg-gray-200 overflow-hidden relative">
-                  <img src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80" className="w-full h-full object-cover" alt="Foto do Animal" />
+                <div className="w-full h-[220px] bg-gray-200 overflow-hidden relative group">
+                  <img src={displayPhotoUrl || "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80"} className="w-full h-full object-cover" alt="Foto do Animal" />
                 </div>
               </div>
 
@@ -101,31 +189,31 @@ export default function RgAnimal() {
               <div className="flex-1 grid grid-cols-2 gap-y-2 gap-x-2 content-start pt-1 z-10 relative bg-white/80 print:bg-transparent rounded px-1 -mx-1 py-1 -my-1">
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Nome do Animal</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">Caramelo</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.nome}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Sexo</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">M</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.sexo === 'macho' ? 'Macho' : currentPet.sexo === 'femea' ? 'Fêmea' : currentPet.sexo}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Registro Geral do Animal</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">RGA 123456789</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">RGA {currentPet.id ? currentPet.id.slice(0, 8).toUpperCase() : "123456789"}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Cor</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">Caramelo</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.cor}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Microchip</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">Não</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.microchipado ? `Sim (${currentPet.numero_microchip})` : "Não"}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Raça</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">SRD</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.raca}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Castrado</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">Sim</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.castrado ? "Sim" : "Não"}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Naturalidade</h4>
@@ -133,7 +221,7 @@ export default function RgAnimal() {
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Data de Nascimento</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">12/12/2020</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{formattedDob}</p>
                   </div>
               </div>
             </div>
@@ -168,12 +256,7 @@ export default function RgAnimal() {
             {/* Left QR Area */}
             <div className="w-[280px] pt-2 pointer-events-auto flex flex-col items-center">
                <div className="border-[6px] border-guapi-green p-3 bg-white inline-block shadow-sm w-full relative">
-                 <div className="w-full aspect-square bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=https://guapimirim.rj.gov.br')] bg-contain bg-no-repeat bg-center opacity-80"></div>
-                 
-                 {/* MODELO banner overlay */}
-                 <div className="absolute top-1/2 left-0 w-full -translate-y-[120%] bg-guapi-green text-white text-center py-1.5 px-2">
-                   <span className="text-4xl font-black tracking-wider block leading-none">MODELO</span>
-                 </div>
+                 <div className="w-full aspect-square bg-contain bg-no-repeat bg-center" style={{ backgroundImage: `url("${qrCodeUrl}")` }}></div>
                </div>
             </div>
 
@@ -181,27 +264,29 @@ export default function RgAnimal() {
             <div className="flex-1 pl-12 pt-2 gap-y-4 flex flex-col items-start pointer-events-auto relative z-20">
                <div>
                   <h4 className="text-[19px] font-bold text-guapi-green leading-none">Responsável Legal / Cuidador(a)</h4>
-                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">Carbone Cartoes</p>
+                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">{currentTutor.nome_completo}</p>
                </div>
                
                <div>
                   <h4 className="text-[19px] font-bold text-guapi-green leading-none">CPF/CNPJ</h4>
-                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">45659479000173</p>
+                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">{currentTutor.cpf_cnpj}</p>
                </div>
 
                <div>
                   <h4 className="text-[19px] font-bold text-guapi-green leading-none">Contato</h4>
-                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">(35) 9 9999-9999</p>
+                  <p className="text-[22px] font-medium text-gray-900 mt-1 leading-none">{currentTutor.telefone}</p>
                </div>
 
                <div className="grid grid-cols-2 gap-4 mt-2 pr-20 w-full">
                  <div>
-                    <h4 className="text-[19px] font-bold text-guapi-green leading-none">Local</h4>
-                    <p className="text-[22px] font-medium text-gray-900 mt-1 leading-tight">Três Corações - MG</p>
+                    <h4 className="text-[19px] font-bold text-guapi-green leading-none">Bairro</h4>
+                    <p className="text-[22px] font-medium text-gray-900 mt-1 leading-tight">
+                      {currentTutor.bairro || "-"}
+                    </p>
                  </div>
                  <div>
                     <h4 className="text-[19px] font-bold text-guapi-green leading-none">Data de Emissão</h4>
-                    <p className="text-[22px] font-medium text-gray-900 mt-1 leading-tight">12/04/2025</p>
+                    <p className="text-[22px] font-medium text-gray-900 mt-1 leading-tight">{formattedEmissionDate}</p>
                  </div>
                </div>
             </div>
@@ -259,7 +344,7 @@ export default function RgAnimal() {
                            
                            {/* Green main body */}
                            <div className="w-[140px] h-[140px] rounded-full border-2 border-guapi-green flex items-center justify-center relative bg-white z-20 pointer-events-auto p-2">
-                                <div className="w-[70%] h-[70%] bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://guapimirim.rj.gov.br')] bg-contain bg-no-repeat bg-center"></div>
+                                <div className="w-[70%] h-[70%] bg-contain bg-no-repeat bg-center" style={{ backgroundImage: `url("${qrCodePingenteUrl}")` }}></div>
                            </div>
                            
                        </div>
@@ -302,7 +387,7 @@ export default function RgAnimal() {
                            
                            {/* Green main body */}
                            <div className="w-[102px] h-[102px] rounded-full border-2 border-guapi-green flex items-center justify-center relative bg-white z-20 pointer-events-auto p-1.5">
-                                <div className="w-[70%] h-[70%] bg-[url('https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://guapimirim.rj.gov.br')] bg-contain bg-no-repeat bg-center"></div>
+                                <div className="w-[70%] h-[70%] bg-contain bg-no-repeat bg-center" style={{ backgroundImage: `url("${qrCodePingenteUrl}")` }}></div>
                            </div>
                            
                        </div>

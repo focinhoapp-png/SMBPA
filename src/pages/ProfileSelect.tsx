@@ -2,17 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { User, X, PlusCircle, Building, HeartPulse } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/Header';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ProfileSelect() {
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedProfileType, setSelectedProfileType] = useState('fisica');
   const navigate = useNavigate();
+  const { user, perfil } = useAuth();
 
   useEffect(() => {
-    const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) setProfileImage(savedImage);
-  }, []);
+    if (perfil?.avatar_url) {
+      setProfileImage(perfil.avatar_url);
+    }
+  }, [perfil]);
 
   const handleAdvance = () => {
     setIsModalOpen(false);
@@ -20,8 +23,8 @@ export default function ProfileSelect() {
         navigate('/editar-perfil');
     } else if (selectedProfileType === 'juridica') {
         navigate('/cadastro-juridica');
-    } else if (selectedProfileType === 'estabelecimento') {
-        navigate('/cadastro-estabelecimento');
+    } else if (selectedProfileType === 'protetor') {
+        navigate('/cadastro-protetor');
     }
   };
 
@@ -32,33 +35,35 @@ export default function ProfileSelect() {
       <main className="flex-grow pt-[100px] pb-16 px-4 flex flex-col items-center justify-center">
         <div className="w-full max-w-4xl bg-white rounded-3xl shadow-sm border border-gray-100 p-8 md:p-12 text-center">
           
-          <h2 className="text-3xl font-bold text-gray-800 mb-3">Bem-vindo(a), Ruan! 👋</h2>
+          <h2 className="text-3xl font-bold text-gray-800 mb-3">Bem-vindo(a)! 👋</h2>
           <p className="text-lg text-gray-500 mb-10 max-w-lg mx-auto">
             Por qual perfil você deseja acessar o painel hoje?
           </p>
 
           <div className="flex flex-wrap justify-center gap-6 mb-12">
-            {/* Existing Profile Card */}
-            <Link 
-              to="/meus-pets" 
-              className="group flex flex-col items-center bg-gray-50 hover:bg-green-50 outline outline-2 outline-transparent hover:outline-guapi-green p-6 rounded-2xl transition-all w-64 shadow-sm hover:shadow-md cursor-pointer"
-            >
-              <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center mb-4 transition-colors overflow-hidden shadow-sm">
-                {profileImage ? (
-                  <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <User className="w-12 h-12 text-gray-400" />
-                )}
-              </div>
-              <div className="text-center">
-                <span className="inline-block bg-white text-guapi-green text-[11px] font-bold px-3 py-1 rounded-full mb-2 uppercase tracking-wide border border-green-100">
-                  Pessoa Física
-                </span>
-                <h3 className="text-gray-800 font-bold text-lg mb-1 leading-tight">Ruan Ennes Gomes</h3>
-                <p className="text-gray-500 text-sm">Acessar perfil</p>
-              </div>
-            </Link>
-
+            {perfil && (
+              <Link 
+                to="/meus-pets" 
+                className="group flex flex-col items-center bg-gray-50 hover:bg-green-50 outline outline-2 outline-transparent hover:outline-guapi-green p-6 rounded-2xl transition-all w-64 shadow-sm hover:shadow-md cursor-pointer"
+              >
+                <div className="w-24 h-24 rounded-full border-4 border-white bg-gray-200 flex items-center justify-center mb-4 transition-colors overflow-hidden shadow-sm">
+                  {profileImage ? (
+                    <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <User className="w-12 h-12 text-gray-400" />
+                  )}
+                </div>
+                <div className="text-center">
+                  <span className="inline-block bg-white text-guapi-green text-[11px] font-bold px-3 py-1 rounded-full mb-2 uppercase tracking-wide border border-green-100">
+                    Pessoa Física
+                  </span>
+                  <h3 className="text-gray-800 font-bold text-lg mb-1 leading-tight">
+                    {perfil.nome_completo || user?.user_metadata?.nome_completo || "Usuário"}
+                  </h3>
+                  <p className="text-gray-500 text-sm">Acessar perfil</p>
+                </div>
+              </Link>
+            )}
             {/* Adicionar Perfil Card */}
             <button 
               onClick={() => setIsModalOpen(true)}
@@ -130,22 +135,22 @@ export default function ProfileSelect() {
               </label>
 
               <label 
-                 className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${selectedProfileType === 'estabelecimento' ? 'border-guapi-green bg-green-50' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'}`}
+                 className={`flex items-center gap-4 p-4 rounded-xl border-2 cursor-pointer transition-colors ${selectedProfileType === 'protetor' ? 'border-guapi-green bg-green-50' : 'border-gray-100 hover:border-gray-200 hover:bg-gray-50'}`}
               >
                 <input 
                   type="radio" 
                   name="profileType" 
-                  value="estabelecimento"
-                  checked={selectedProfileType === 'estabelecimento'}
+                  value="protetor"
+                  checked={selectedProfileType === 'protetor'}
                   onChange={(e) => setSelectedProfileType(e.target.value)}
                   className="w-5 h-5 text-guapi-green border-gray-300 focus:ring-guapi-green hidden" 
                 />
-                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedProfileType === 'estabelecimento' ? 'border-guapi-green' : 'border-gray-300'}`}>
-                    <div className={`w-3 h-3 rounded-full bg-guapi-green transition-transform ${selectedProfileType === 'estabelecimento' ? 'scale-100' : 'scale-0'}`}></div>
+                 <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${selectedProfileType === 'protetor' ? 'border-guapi-green' : 'border-gray-300'}`}>
+                    <div className={`w-3 h-3 rounded-full bg-guapi-green transition-transform ${selectedProfileType === 'protetor' ? 'scale-100' : 'scale-0'}`}></div>
                 </div>
                 <div>
-                  <span className="block font-bold text-gray-800 text-base">Estabelecimento Veterinário</span>
-                  <span className="block text-sm text-gray-500">Para clínicas e hospitais</span>
+                  <span className="block font-bold text-gray-800 text-base">Protetores Independentes</span>
+                  <span className="block text-sm text-gray-500">Para resgatadores e protetores de pets</span>
                 </div>
               </label>
             </div>

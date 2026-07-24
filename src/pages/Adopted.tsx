@@ -1,11 +1,50 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart } from 'lucide-react';
+import confetti from 'canvas-confetti';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { mockPets, getPetSubTitle } from '../data/pets';
 
 export default function Adopted() {
   const adoptedPets = mockPets.filter(pet => pet.status === 'adotado');
+
+  useEffect(() => {
+    const duration = 2500;
+    const end = Date.now() + duration;
+
+    const frame = () => {
+      // Confete da esquerda
+      confetti({
+        particleCount: 5,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0, y: 0.6 },
+        colors: ['#fae284', '#166534', '#4ade80', '#ffffff'],
+        zIndex: 100
+      });
+      // Confete da direita
+      confetti({
+        particleCount: 5,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1, y: 0.6 },
+        colors: ['#fae284', '#166534', '#4ade80', '#ffffff'],
+        zIndex: 100
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    };
+    
+    // Pequeno delay para a página renderizar primeiro
+    const timeoutId = setTimeout(() => {
+      frame();
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, []);
 
   return (
     <div className="font-sans bg-white selection:bg-guapi-orange selection:text-white pt-[80px] min-h-screen flex flex-col">
@@ -71,11 +110,11 @@ export default function Adopted() {
               
               <div className="p-5 flex-1 flex flex-col">
                 <h3 className="text-xl font-bold text-guapi-green mb-1">{pet.name}</h3>
-                <p className="text-[11px] text-gray-500 mb-3 font-medium">
+                <p className="text-[14px] text-slate-500 mb-4 font-medium capitalize leading-relaxed">
                   {getPetSubTitle(pet)}
                 </p>
-                <p className="text-sm text-gray-600 line-clamp-4 leading-relaxed mb-6">
-                  {pet.description} Resgatado das ruas com muito amor, este lindo animal de porte {pet.size.toLowerCase()} encontrou uma nova família.
+                <p className="text-[15px] text-slate-700 line-clamp-4 leading-relaxed mb-6">
+                  {pet.description}
                 </p>
                 
                 <div className="mt-auto">

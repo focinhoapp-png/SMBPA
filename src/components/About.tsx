@@ -1,7 +1,25 @@
 import { CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useState, useEffect } from 'react';
+
+const images = [
+  '/petum.jfif',
+  '/petdois.jfif',
+  '/pettres.jfif',
+  '/petquatro.jfif',
+  '/petcinco.jfif'
+];
 
 export default function About() {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
     <section id="sobre" className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -15,13 +33,16 @@ export default function About() {
           >
             <h2 className="text-sm font-bold text-guapi-green tracking-wider uppercase mb-3">Sobre o Projeto</h2>
             <h3 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-6 leading-tight">
-              Adote um Amigo e faça a diferença em Guapimirim
+              Feira de Adoção
             </h3>
-            <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-              O projeto de adoção é uma iniciativa da Secretaria Municipal de Bem-Estar e Proteção Animal de Guapimirim-RJ. Nosso objetivo é encontrar lares amorosos e responsáveis para animais resgatados em situação de risco no município.
+            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              A Feira de Adoção é uma iniciativa da Secretaria Municipal de Bem-Estar e Proteção Animal de Guapimirim-RJ, realizada em edições na Feira do Produtor Rural, em Parada Modelo, normalmente aos domingos, das 8h às 12h.
+            </p>
+            <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              Durante a feira, você poderá conhecer cães e gatos resgatados que aguardam a oportunidade de encontrar um lar seguro, cheio de amor e responsabilidade. Todos os animais disponíveis para adoção já estão castrados, vacinados e vermifugados, prontos para fazer parte de uma nova família.
             </p>
             <p className="text-lg text-gray-600 mb-10 leading-relaxed">
-              Todos os nossos animais disponíveis para adoção já estão castrados, vacinados e vermifugados, prontos para encher sua casa de alegria.
+              Venha nos visitar, conheça nossos animais e faça parte dessa corrente de amor e cuidado. Acompanhe nossos canais oficiais para conferir as próximas edições da Feira de Adoção.
             </p>
 
             <div className="bg-guapi-green/5 rounded-2xl p-6 border border-guapi-green/10">
@@ -53,11 +74,16 @@ export default function About() {
             transition={{ duration: 0.6 }}
             className="relative h-[400px] lg:h-[600px] rounded-3xl overflow-hidden shadow-xl"
           >
-            <img 
-              src="https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" 
-              alt="Cachorro resgatado feliz" 
-              className="absolute inset-0 w-full h-full object-cover"
-            />
+            {images.map((img, index) => (
+              <img 
+                key={img}
+                src={img} 
+                alt={`Pet para adoção ${index + 1}`} 
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                  index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+                }`}
+              />
+            ))}
           </motion.div>
 
         </div>

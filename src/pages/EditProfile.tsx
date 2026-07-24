@@ -3,14 +3,66 @@ import { Link, useNavigate } from "react-router-dom";
 import { Home, ChevronRight, Info } from "lucide-react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const { user, perfil } = useAuth();
 
-  const handleUpdate = (e: React.FormEvent) => {
+  const formatDate = (isoStr: string) => {
+    if (!isoStr) return "";
+    if (isoStr.includes('-')) {
+      const parts = isoStr.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+    }
+    return isoStr;
+  };
+
+  const dataNascimentoFormatada = formatDate(user?.user_metadata?.data_nascimento || perfil?.data_nascimento);
+
+  const handleUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Logic to update user info would go here
-    navigate("/painel");
+    if (!user) return;
+
+    const formData = new FormData(e.currentTarget as HTMLFormElement);
+    const email = formData.get('email') as string;
+    const data_nascimento = formData.get('data_nascimento') as string;
+    const telefone = formData.get('telefone') as string;
+    const cep = formData.get('cep') as string;
+    const bairro = formData.get('bairro') as string;
+
+    let dataIso = '';
+    if (data_nascimento) {
+      const parts = data_nascimento.split('/');
+      if (parts.length === 3) {
+        dataIso = `${parts[2]}-${parts[1]}-${parts[0]}`;
+      }
+    }
+
+    try {
+      const { error } = await supabase
+        .from('usuarios')
+        .update({
+          telefone,
+          cep,
+          bairro,
+          cidade: 'Guapimirim',
+          estado: 'RJ',
+          ...(dataIso && { data_nascimento: dataIso }),
+        })
+        .eq('auth_id', user.id);
+
+      if (error) {
+        console.error("Supabase error:", JSON.stringify(error));
+        throw error;
+      }
+      window.location.href = "/painel";
+    } catch (err: any) {
+      console.error("Erro ao atualizar perfil:", err);
+      const msg = err?.message || err?.error_description || JSON.stringify(err);
+      alert(`Erro: ${msg}`);
+    }
   };
 
   return (
@@ -45,7 +97,7 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="text"
-                      value="RUAN ENNES GOMES"
+                      value={user?.user_metadata?.nome_completo || perfil?.nome_completo || user?.user_metadata?.full_name || ""}
                       readOnly
                       disabled
                       className="w-full border border-gray-200 rounded px-3 py-2 bg-gray-50 text-gray-400 font-medium cursor-not-allowed outline-none text-sm"
@@ -57,7 +109,7 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="text"
-                      value="161.656.666-66"
+                      value={user?.user_metadata?.cpf_cnpj || perfil?.cpf_cnpj || ""}
                       readOnly
                       disabled
                       className="w-full border border-gray-200 rounded px-3 py-2 bg-gray-50 text-gray-400 font-medium cursor-not-allowed outline-none text-sm"
@@ -74,7 +126,8 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="email"
-                      defaultValue="ennesruan@gmail.com"
+                      name="email"
+                      defaultValue={user?.email || ""}
                       className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium"
                     />
                   </div>
@@ -84,7 +137,8 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="06/07/1993"
+                      name="data_nascimento"
+                      defaultValue={dataNascimentoFormatada}
                       className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium"
                     />
                   </div>
@@ -94,7 +148,8 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="(21) 98428-2215"
+                      name="telefone"
+                      defaultValue={user?.user_metadata?.telefone || perfil?.telefone || ""}
                       className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium"
                     />
                   </div>
@@ -108,27 +163,51 @@ const EditProfile = () => {
                     </label>
                     <input
                       type="text"
-                      defaultValue="25949-035"
+                      name="cep"
+                      defaultValue={user?.user_metadata?.cep || perfil?.cep || ""}
                       className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium"
                     />
                   </div>
                   <div>
-                    <label className="block text-[13px] font-medium text-gray-700 mb-1">
-                      Estado:
+                    <label className="block text-[13px] text-gray-500 mb-1">
+                      Município:
                     </label>
-                    <select className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium">
-                      <option>Rio de Janeiro</option>
-                      <option>São Paulo</option>
-                      <option>Minas Gerais</option>
-                    </select>
+                    <input
+                      type="text"
+                      value="Guapimirim"
+                      readOnly
+                      disabled
+                      className="w-full border border-gray-200 rounded px-3 py-2 bg-gray-50 text-gray-400 font-medium cursor-not-allowed outline-none text-sm"
+                    />
                   </div>
                   <div>
                     <label className="block text-[13px] font-medium text-gray-700 mb-1">
-                      Município:
+                      Bairro:
                     </label>
-                    <select className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium">
-                      <option>Guapimirim</option>
-                      <option>Rio de Janeiro</option>
+                    <select 
+                      name="bairro"
+                      defaultValue={user?.user_metadata?.bairro || perfil?.bairro || ""}
+                      className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-700 font-medium"
+                    >
+                      <option value="">-- Selecione o Bairro --</option>
+                      <option value="Bananal">Bananal</option>
+                      <option value="Barreira">Barreira</option>
+                      <option value="Caneca Fina">Caneca Fina</option>
+                      <option value="Centro">Centro</option>
+                      <option value="Cotia">Cotia</option>
+                      <option value="Garrafão">Garrafão</option>
+                      <option value="Iconha">Iconha</option>
+                      <option value="Limoeiro">Limoeiro</option>
+                      <option value="Orindi">Orindi</option>
+                      <option value="Parada Ideal">Parada Ideal</option>
+                      <option value="Parada Modelo">Parada Modelo</option>
+                      <option value="Parque Flechal">Parque Flechal</option>
+                      <option value="Parque Santa Eugênia">Parque Santa Eugênia</option>
+                      <option value="Sapê">Sapê</option>
+                      <option value="Segredo">Segredo</option>
+                      <option value="Vale das Pedrinhas">Vale das Pedrinhas</option>
+                      <option value="Várzea">Várzea</option>
+                      <option value="Vila Olímpia">Vila Olímpia</option>
                     </select>
                   </div>
                 </div>
@@ -197,7 +276,6 @@ const EditProfile = () => {
         </div>
       </main>
 
-      <Footer />
     </div>
   );
 };

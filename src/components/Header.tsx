@@ -1,11 +1,21 @@
 import { PawPrint, Menu, X, ChevronDown } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { supabase } from "../lib/supabase";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+    setIsMenuOpen(false);
+  };
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -54,6 +64,12 @@ export default function Header() {
             >
               Adotados
             </a>
+            <a
+              href="/eventos"
+              className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
+            >
+              Eventos
+            </a>
 
             <div className="relative" ref={dropdownRef}>
               <button
@@ -66,36 +82,37 @@ export default function Header() {
 
               {isDropdownOpen && (
                 <div className="absolute right-0 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50 flex flex-col">
-                  <a
-                    href="/painel"
-                    className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
-                  >
-                    Painel
-                  </a>
-                  <a
-                    href="/meus-pets"
-                    className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
-                  >
-                    Meus pets
-                  </a>
+                  {user && (
+                    <>
+                      <a
+                        href="/painel"
+                        className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
+                      >
+                        Painel
+                      </a>
+                      <a
+                        href="/meus-pets"
+                        className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
+                      >
+                        Meus pets
+                      </a>
+                    </>
+                  )}
                   <a
                     href="/meus-pets-dos-sonhos"
                     className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
                   >
                     Pet dos sonhos
                   </a>
-                  <a
-                    href="/eventos"
-                    className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
-                  >
-                    Eventos para meu pet
-                  </a>
-                  <a
-                    href="#"
-                    className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
-                  >
-                    Modelo de Termo de Adoção
-                  </a>
+
+                  {user && (
+                    <a
+                      href="#"
+                      className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
+                    >
+                      Modelo de Termo de Adoção
+                    </a>
+                  )}
                   <a
                     href="/transparencia"
                     className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
@@ -103,10 +120,10 @@ export default function Header() {
                     Transparência Pets
                   </a>
                   <a
-                    href="/cadastrar-ong"
+                    href="/castracao"
                     className="block px-4 py-2.5 text-sm font-medium text-guapi-green hover:bg-gray-50"
                   >
-                    Cadastrar ONG
+                    Castração
                   </a>
                   <a
                     href="/smbepa-responde"
@@ -118,12 +135,21 @@ export default function Header() {
               )}
             </div>
 
-            <Link
-              to="/login"
-              className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
-            >
-              Entrar
-            </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
+              >
+                Sair
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
+              >
+                Entrar
+              </Link>
+            )}
           </nav>
 
           <div className="md:hidden flex items-center">
@@ -164,42 +190,49 @@ export default function Header() {
             >
               Adotados
             </a>
+            <a
+              href="/eventos"
+              className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md"
+            >
+              Eventos
+            </a>
 
             <div className="pt-2 pb-1 border-t border-gray-100 mt-2">
               <span className="block px-3 py-2 text-base font-bold text-gray-800">
                 Menu
               </span>
               <div className="pl-4 space-y-1">
-                <a
-                  href="/painel"
-                  className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
-                >
-                  Painel
-                </a>
-                <a
-                  href="/meus-pets"
-                  className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
-                >
-                  Meus pets
-                </a>
+                {user && (
+                  <>
+                    <a
+                      href="/painel"
+                      className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
+                    >
+                      Painel
+                    </a>
+                    <a
+                      href="/meus-pets"
+                      className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
+                    >
+                      Meus pets
+                    </a>
+                  </>
+                )}
                 <a
                   href="/meus-pets-dos-sonhos"
                   className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
                 >
                   Pet dos sonhos
                 </a>
-                <a
-                  href="/eventos"
-                  className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
-                >
-                  Eventos para meu pet
-                </a>
-                <a
-                  href="#"
-                  className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
-                >
-                  Modelo de Termo de Adoção
-                </a>
+
+                {user && (
+                  <a
+                    href="#"
+                    className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
+                  >
+                    Modelo de Termo de Adoção
+                  </a>
+                )}
                 <a
                   href="/transparencia"
                   className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
@@ -207,10 +240,10 @@ export default function Header() {
                   Transparência Pets
                 </a>
                 <a
-                  href="/cadastrar-ong"
+                  href="/castracao"
                   className="block px-3 py-2 text-sm font-medium text-guapi-green hover:text-guapi-orange hover:bg-gray-50 rounded-md"
                 >
-                  Cadastrar ONG
+                  Castração
                 </a>
                 <a
                   href="/smbepa-responde"
@@ -221,13 +254,22 @@ export default function Header() {
               </div>
             </div>
 
-            <Link
-              to="/login"
-              onClick={() => setIsMenuOpen(false)}
-              className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md mt-2"
-            >
-              Entrar
-            </Link>
+            {user ? (
+              <button
+                onClick={handleLogout}
+                className="block w-full text-left px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md mt-2"
+              >
+                Sair
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md mt-2"
+              >
+                Entrar
+              </Link>
+            )}
           </div>
         </div>
       )}

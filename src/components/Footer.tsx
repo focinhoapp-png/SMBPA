@@ -42,34 +42,23 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div className="col-span-1 lg:col-span-1 flex flex-col justify-center items-start gap-8">
-            <a href="https://www.instagram.com/caiopietrelli?igsh=d3JsbHZiNXJrbXc3" target="_blank" rel="noopener noreferrer">
-              <img
-                src="/logocaio.png"
-                alt="Caio"
-                className="h-24 sm:h-28 w-auto object-contain hover:opacity-80 transition-opacity"
-              />
-            </a>
-            <a href="https://www.instagram.com/cidadedeguapimirim?igsh=MThxOWg0dXFob2Ftbg==" target="_blank" rel="noopener noreferrer">
-              <img
-                src="/logoguapi.png"
-                alt="Guapimirim"
-                className="h-20 sm:h-24 w-auto object-contain hover:opacity-80 transition-opacity"
-              />
-            </a>
-          </div>
-
-          <div className="col-span-1 lg:col-span-2 flex flex-col items-center text-center lg:-ml-4 xl:-ml-8">
-            <div className="mb-6">
+          <div className="col-span-1 lg:col-span-3 flex flex-col items-center text-center lg:-ml-4 xl:-ml-8">
+            <div className="mb-6 flex items-center justify-center gap-8 sm:gap-12">
+              <a href="https://www.instagram.com/cidadedeguapimirim?igsh=MThxOWg0dXFob2Ftbg==" target="_blank" rel="noopener noreferrer">
+                <img
+                  src="/logoguapi.png"
+                  alt="Guapimirim"
+                  className="h-20 sm:h-24 w-auto object-contain hover:opacity-80 transition-opacity"
+                />
+              </a>
               <img
                 src="/logobranca.PNG"
                 alt="Bem-Estar Animal"
                 className="h-20 sm:h-24 w-auto object-contain scale-[1.2]"
               />
             </div>
-            <p className="text-gray-400 mb-6 line-clamp-3 text-sm">
-              Secretaria Municipal de Bem-Estar e Proteção Animal. Resgatando,
-              cuidando e amando os animais do nosso município.
+            <p className="text-gray-400 mb-6 line-clamp-3 text-sm max-w-lg">
+              A Prefeitura de Guapimirim, por meio da Secretaria Municipal de Bem-Estar e Proteção Animal, atua na proteção, acolhimento, cuidado e promoção do bem-estar dos animais do nosso município.
             </p>
             <div className="flex space-x-4">
               <a
@@ -96,7 +85,7 @@ export default function Footer() {
             direitos reservados.
           </p>
           <div className="mt-4 md:mt-0 flex gap-4">
-            <span>Desenvolvido por Orbizia</span>
+            <span>Desenvolvido por Ruan Ennes</span>
           </div>
         </div>
       </div>

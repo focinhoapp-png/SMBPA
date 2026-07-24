@@ -77,7 +77,7 @@ export default function DonatePet() {
             </p>
 
             <p>
-              <strong>4) Delivery pet</strong> - Deu tudo certo na entrevista? Acesse o Adota Pet e altere o status para "Adotado". Isso oficializa a adoção e libera o voucher do Uber Pet para o transporte do animal até sua nova família.
+              <strong>4) Delivery pet</strong> - Deu tudo certo na entrevista? Acesse o site e altere o status para "Adotado". Isso oficializa a adoção e libera um Uber Pet para o transporte do animal até sua nova família.
             </p>
           </div>
 
