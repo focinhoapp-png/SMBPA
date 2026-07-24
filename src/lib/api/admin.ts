@@ -1,7 +1,7 @@
 import { supabase } from '../supabase';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
-export type AdminPapel = 'master' | 'admin' | 'moderador' | 'operador';
+export type AdminPapel = 'admin' | 'veterinario' | 'protetor' | 'proprietario';
 
 export interface AdminUser {
   id: string;
@@ -54,10 +54,25 @@ export function isAdminLoggedIn(): boolean {
 
 // ─── Permissões por papel ─────────────────────────────────────────────────────
 export const PERMISSOES: Record<AdminPapel, string[]> = {
-  master:     ['dashboard','pets','adocoes','usuarios_ver','usuarios_editar','eventos','banners','historias','contatos','permissoes','logs','configuracoes','backup'],
-  admin:      ['dashboard','pets','adocoes','usuarios_ver','usuarios_editar','eventos','banners','historias','contatos','logs'],
-  moderador:  ['dashboard','pets','adocoes','usuarios_ver','eventos','historias','contatos'],
-  operador:   ['dashboard','pets','adocoes','contatos'],
+  // Acesso total
+  admin: [
+    'dashboard', 'graficos', 'pets', 'adocoes', 'solicitacoes',
+    'eventos', 'banners', 'historias', 'contatos',
+    'usuarios', 'veterinarios', 'protetores', 'logs', 'meus_dados',
+  ],
+  // Veterinário: vê pets e seu perfil
+  veterinario: ['dashboard', 'pets', 'meus_dados'],
+  // Protetor: pets comunitários, adoções e denúncias
+  protetor: ['dashboard', 'pets', 'adocoes', 'contatos', 'meus_dados'],
+  // Proprietário: seus pets, solicitações de adoção e seu perfil
+  proprietario: ['dashboard', 'pets', 'solicitacoes', 'meus_dados'],
+};
+
+export const PAPEL_LABEL: Record<AdminPapel, string> = {
+  admin:       'Administrador',
+  veterinario: 'Veterinário',
+  protetor:    'Protetor',
+  proprietario:'Proprietário',
 };
 
 export function temPermissao(papel: AdminPapel, permissao: string): boolean {

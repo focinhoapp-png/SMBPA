@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
-import { getAdminUser, adminSalvarConfiguracao, adminGetConfiguracoes } from '../../lib/api/admin';
-import { Save, User, MapPin, Mail, KeyRound, Shield, Phone } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { getAdminUser, adminSalvarConfiguracao, adminGetConfiguracoes, PAPEL_LABEL } from '../../lib/api/admin';
+import { Save, User, MapPin, Mail, KeyRound, Shield, Accessibility } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
@@ -30,6 +30,46 @@ const Field = ({
 const inputCls =
   'w-full border-0 border-b border-gray-200 bg-transparent py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-guapi-green transition-colors';
 
+const selectCls =
+  'w-full border-0 border-b border-gray-200 bg-transparent py-2 text-sm text-gray-700 focus:outline-none focus:border-guapi-green transition-colors';
+
+// CPF/CNPJ formatter
+function formatCpfCnpj(value: string) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 11) {
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1');
+  } else {
+    return digits
+      .replace(/(\d{2})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1/$2')
+      .replace(/(\d{4})(\d)/, '$1-$2')
+      .replace(/(-\d{2})\d+?$/, '$1');
+  }
+}
+
+function formatTelefone(value: string) {
+  const digits = value.replace(/\D/g, '');
+  if (digits.length <= 10) {
+    return digits.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{4})(\d)/, '$1-$2').replace(/(-\d{4})\d+?$/, '$1');
+  }
+  return digits.replace(/(\d{2})(\d)/, '($1) $2').replace(/(\d{5})(\d)/, '$1-$2').replace(/(-\d{4})\d+?$/, '$1');
+}
+
+function formatCep(value: string) {
+  const digits = value.replace(/\D/g, '');
+  return digits.replace(/(\d{5})(\d)/, '$1-$2').replace(/(-\d{3})\d+?$/, '$1');
+}
+
+function formatData(value: string) {
+  const digits = value.replace(/\D/g, '');
+  return digits.replace(/(\d{2})(\d)/, '$1/$2').replace(/(\d{2})(\d)/, '$1/$2').replace(/(\/\d{4})\d+?$/, '$1');
+}
+
 export default function AdminConfiguracoes() {
   const admin = getAdminUser();
 
@@ -37,12 +77,19 @@ export default function AdminConfiguracoes() {
     nome: admin?.nome ?? '',
     email: admin?.email ?? '',
     papel: admin?.papel ?? '',
+    cpfCnpj: '',
+    nomeSocial: '',
+    dataNascimento: '',
+    genero: '',
+    isPcd: '',
     emailAlternativo: '',
     nomePublicacao: '',
     logradouro: '',
     numero: '',
     cep: '',
     bairro: '',
+    cidade: 'Guapimirim',
+    estado: 'RJ',
     telefone: '',
     receberEmails: true,
   });
@@ -54,26 +101,39 @@ export default function AdminConfiguracoes() {
   const [savingSenha, setSavingSenha] = useState(false);
   const [msg, setMsg] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
-  const handleChange = (field: string, value: any) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: string, value: string) => {
+    let formatted = value;
+    if (field === 'cpfCnpj') formatted = formatCpfCnpj(value);
+    if (field === 'telefone') formatted = formatTelefone(value);
+    if (field === 'cep') formatted = formatCep(value);
+    if (field === 'dataNascimento') formatted = formatData(value);
+    setForm(prev => ({ ...prev, [field]: formatted }));
   };
 
   const handleSave = async () => {
     setSaving(true);
     setMsg(null);
     try {
-      // Save extra fields as system configs
-      await Promise.all([
-        adminSalvarConfiguracao('admin_email_alternativo', form.emailAlternativo),
-        adminSalvarConfiguracao('admin_nome_publicacao', form.nomePublicacao),
-        adminSalvarConfiguracao('admin_logradouro', form.logradouro),
-        adminSalvarConfiguracao('admin_numero', form.numero),
-        adminSalvarConfiguracao('admin_cep', form.cep),
-        adminSalvarConfiguracao('admin_bairro', form.bairro),
-        adminSalvarConfiguracao('admin_telefone', form.telefone),
-        adminSalvarConfiguracao('admin_receber_emails', form.receberEmails ? 'true' : 'false'),
-      ]);
+      const fields: Record<string, string> = {
+        admin_cpf_cnpj: form.cpfCnpj,
+        admin_nome_social: form.nomeSocial,
+        admin_data_nascimento: form.dataNascimento,
+        admin_genero: form.genero,
+        admin_is_pcd: form.isPcd,
+        admin_email_alternativo: form.emailAlternativo,
+        admin_nome_publicacao: form.nomePublicacao,
+        admin_logradouro: form.logradouro,
+        admin_numero: form.numero,
+        admin_cep: form.cep,
+        admin_bairro: form.bairro,
+        admin_cidade: form.cidade,
+        admin_estado: form.estado,
+        admin_telefone: form.telefone,
+        admin_receber_emails: form.receberEmails ? 'true' : 'false',
+      };
+      await Promise.all(Object.entries(fields).map(([k, v]) => adminSalvarConfiguracao(k, v)));
       setMsg({ type: 'success', text: 'Dados salvos com sucesso!' });
+      setTimeout(() => setMsg(null), 4000);
     } catch {
       setMsg({ type: 'error', text: 'Erro ao salvar os dados.' });
     } finally {
@@ -86,6 +146,10 @@ export default function AdminConfiguracoes() {
       setMsg({ type: 'error', text: 'As senhas não conferem.' });
       return;
     }
+    if (novaSenha.length < 6) {
+      setMsg({ type: 'error', text: 'A senha deve ter pelo menos 6 caracteres.' });
+      return;
+    }
     setSavingSenha(true);
     setMsg(null);
     try {
@@ -95,42 +159,43 @@ export default function AdminConfiguracoes() {
       setSenhaAtual('');
       setNovaSenha('');
       setConfirmSenha('');
+      setTimeout(() => setMsg(null), 4000);
     } catch {
-      setMsg({ type: 'error', text: 'Erro ao trocar a senha. Verifique os dados.' });
+      setMsg({ type: 'error', text: 'Erro ao trocar a senha.' });
     } finally {
       setSavingSenha(false);
     }
   };
 
-  // Load saved configs on mount
   useEffect(() => {
     adminGetConfiguracoes().then(data => {
       const map: Record<string, string> = {};
       (data || []).forEach((c: any) => { map[c.chave] = c.valor; });
       setForm(prev => ({
         ...prev,
+        cpfCnpj:         map['admin_cpf_cnpj'] ?? '',
+        nomeSocial:      map['admin_nome_social'] ?? '',
+        dataNascimento:  map['admin_data_nascimento'] ?? '',
+        genero:          map['admin_genero'] ?? '',
+        isPcd:           map['admin_is_pcd'] ?? '',
         emailAlternativo: map['admin_email_alternativo'] ?? '',
-        nomePublicacao:   map['admin_nome_publicacao'] ?? '',
-        logradouro:       map['admin_logradouro'] ?? '',
-        numero:           map['admin_numero'] ?? '',
-        cep:              map['admin_cep'] ?? '',
-        bairro:           map['admin_bairro'] ?? '',
-        telefone:         map['admin_telefone'] ?? '',
-        receberEmails:    map['admin_receber_emails'] !== 'false',
+        nomePublicacao:  map['admin_nome_publicacao'] ?? '',
+        logradouro:      map['admin_logradouro'] ?? '',
+        numero:          map['admin_numero'] ?? '',
+        cep:             map['admin_cep'] ?? '',
+        bairro:          map['admin_bairro'] ?? '',
+        cidade:          map['admin_cidade'] ?? 'Guapimirim',
+        estado:          map['admin_estado'] ?? 'RJ',
+        telefone:        map['admin_telefone'] ?? '',
+        receberEmails:   map['admin_receber_emails'] !== 'false',
       }));
     }).catch(() => {});
   }, []);
 
-  const papelLabel: Record<string, string> = {
-    master:    'Master / Superadmin',
-    admin:     'Administrador',
-    moderador: 'Moderador',
-    operador:  'Operador',
-  };
-
   return (
     <div className="max-w-4xl">
       <h1 className="text-2xl font-bold text-gray-800 mb-1">Meus Dados</h1>
+
       <p className="text-sm text-gray-500 mb-6">
         Os campos marcados com asterisco (<span className="text-red-400">*</span>) são de preenchimento obrigatório.
       </p>
@@ -150,21 +215,73 @@ export default function AdminConfiguracoes() {
         <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
           <SectionHeader icon={User} title="Dados da Conta" />
           <div className="bg-white p-6 space-y-6">
+
             {/* Nome completo */}
             <Field label="Nome Completo" required>
               <input
                 type="text"
                 value={form.nome}
                 readOnly
+                title="O nome não pode ser alterado aqui"
                 className={`${inputCls} bg-gray-50 text-gray-500 cursor-not-allowed`}
               />
             </Field>
 
-            {/* Tipo / Email */}
+            {/* CPF/CNPJ + Nome Social */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field label="CPF / CNPJ" required>
+                <input
+                  type="text"
+                  value={form.cpfCnpj}
+                  onChange={e => handleChange('cpfCnpj', e.target.value)}
+                  placeholder="___.___.___-__"
+                  maxLength={18}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Nome Social">
+                <input
+                  type="text"
+                  value={form.nomeSocial}
+                  onChange={e => handleChange('nomeSocial', e.target.value)}
+                  placeholder="Nome social (se aplicável)"
+                  className={inputCls}
+                />
+              </Field>
+            </div>
+
+            {/* Data Nasc + Gênero */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Field label="Data de Nascimento">
+                <input
+                  type="text"
+                  value={form.dataNascimento}
+                  onChange={e => handleChange('dataNascimento', e.target.value)}
+                  placeholder="DD/MM/AAAA"
+                  maxLength={10}
+                  className={inputCls}
+                />
+              </Field>
+              <Field label="Gênero">
+                <select
+                  value={form.genero}
+                  onChange={e => setForm(prev => ({ ...prev, genero: e.target.value }))}
+                  className={selectCls}
+                >
+                  <option value="">-- Selecione --</option>
+                  <option value="Feminino">Feminino</option>
+                  <option value="Masculino">Masculino</option>
+                  <option value="Prefiro não dizer">Prefiro não dizer</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </Field>
+            </div>
+
+            {/* Tipo / E-mail */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo de Usuário">
                 <div className="border-b border-gray-200 py-2 flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{papelLabel[form.papel] ?? form.papel}</span>
+                  <span className="text-sm text-gray-500">{PAPEL_LABEL[form.papel as keyof typeof PAPEL_LABEL] ?? form.papel}</span>
                   <Shield className="w-4 h-4 text-gray-300" />
                 </div>
               </Field>
@@ -173,6 +290,7 @@ export default function AdminConfiguracoes() {
                   type="email"
                   value={form.email}
                   readOnly
+                  title="O e-mail não pode ser alterado aqui"
                   className={`${inputCls} bg-gray-50 text-gray-500 cursor-not-allowed`}
                 />
               </Field>
@@ -199,6 +317,26 @@ export default function AdminConfiguracoes() {
                 />
               </Field>
             </div>
+
+            {/* PCD */}
+            <Field label="É pessoa com deficiência (PCD)?">
+              <div className="flex gap-4 pt-1">
+                {['sim', 'nao'].map(v => (
+                  <button
+                    key={v}
+                    type="button"
+                    onClick={() => setForm(prev => ({ ...prev, isPcd: v }))}
+                    className={`px-6 py-1.5 rounded border text-sm font-medium transition-colors ${
+                      form.isPcd === v
+                        ? 'bg-guapi-green/10 text-guapi-green border-guapi-green'
+                        : 'text-gray-500 border-gray-200 hover:border-guapi-green hover:text-guapi-green'
+                    }`}
+                  >
+                    {v === 'sim' ? 'Sim' : 'Não'}
+                  </button>
+                ))}
+              </div>
+            </Field>
           </div>
         </div>
 
@@ -207,7 +345,7 @@ export default function AdminConfiguracoes() {
           <SectionHeader icon={MapPin} title="Endereço" />
           <div className="bg-white p-6 space-y-6">
             {/* Logradouro / Número / CEP */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px] gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_100px_140px] gap-6">
               <Field label="Logradouro">
                 <input
                   type="text"
@@ -232,13 +370,14 @@ export default function AdminConfiguracoes() {
                   placeholder="00000-000"
                   value={form.cep}
                   onChange={e => handleChange('cep', e.target.value)}
+                  maxLength={9}
                   className={inputCls}
                 />
               </Field>
             </div>
 
-            {/* Bairro / Telefone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Bairro / Cidade / Estado */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Bairro">
                 <input
                   type="text"
@@ -248,20 +387,39 @@ export default function AdminConfiguracoes() {
                   className={inputCls}
                 />
               </Field>
-              <Field label="Telefone">
-                <div className="flex items-center gap-2 border-b border-gray-200 py-1">
-                  <span className="text-lg">🇧🇷</span>
-                  <span className="text-sm text-gray-400">+55</span>
-                  <input
-                    type="tel"
-                    placeholder="(21) 99999-9999"
-                    value={form.telefone}
-                    onChange={e => handleChange('telefone', e.target.value)}
-                    className="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-300 focus:outline-none"
-                  />
-                </div>
+              <Field label="Município">
+                <input
+                  type="text"
+                  value={form.cidade}
+                  readOnly
+                  className={`${inputCls} text-gray-400 cursor-not-allowed`}
+                />
+              </Field>
+              <Field label="Estado">
+                <input
+                  type="text"
+                  value={form.estado}
+                  readOnly
+                  className={`${inputCls} text-gray-400 cursor-not-allowed`}
+                />
               </Field>
             </div>
+
+            {/* Telefone */}
+            <Field label="Telefone">
+              <div className="flex items-center gap-2 border-b border-gray-200 py-1">
+                <span className="text-lg">🇧🇷</span>
+                <span className="text-sm text-gray-400">+55</span>
+                <input
+                  type="tel"
+                  placeholder="(21) 99999-9999"
+                  value={form.telefone}
+                  onChange={e => handleChange('telefone', e.target.value)}
+                  maxLength={15}
+                  className="flex-1 bg-transparent text-sm text-gray-800 placeholder-gray-300 focus:outline-none"
+                />
+              </div>
+            </Field>
           </div>
         </div>
 
@@ -282,10 +440,10 @@ export default function AdminConfiguracoes() {
                 <li>· Alertas de atividade suspeita ou tentativas de acesso indevido.</li>
               </ul>
             </div>
-            <label className="flex items-center gap-3 cursor-pointer select-none group">
+            <label className="flex items-center gap-3 cursor-pointer select-none">
               <div
-                onClick={() => handleChange('receberEmails', !form.receberEmails)}
-                className={`relative w-10 h-5 rounded-full transition-colors ${form.receberEmails ? 'bg-guapi-green' : 'bg-gray-300'}`}
+                onClick={() => setForm(prev => ({ ...prev, receberEmails: !prev.receberEmails }))}
+                className={`relative w-10 h-5 rounded-full transition-colors cursor-pointer ${form.receberEmails ? 'bg-guapi-green' : 'bg-gray-300'}`}
               >
                 <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full shadow transition-transform ${form.receberEmails ? 'translate-x-5' : ''}`} />
               </div>
