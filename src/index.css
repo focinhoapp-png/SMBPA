@@ -3,8 +3,8 @@
 
 @theme {
   --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
-  --color-guapi-green: #115d40;
-  --color-guapi-green-dark: #0a402a;
-  --color-guapi-orange: #f26b1c;
-  --color-guapi-orange-dark: #d55913;
+  --color-guapi-green: #07735C;
+  --color-guapi-green-dark: #044F3F;
+  --color-guapi-orange: #FA8912;
+  --color-guapi-orange-dark: #D4700A;
 }

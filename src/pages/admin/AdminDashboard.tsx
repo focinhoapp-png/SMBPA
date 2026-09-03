@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { getDashboardStats } from '../../lib/api/admin';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 import {
   PawPrint, Heart, Users, MessageSquare, Scissors,
   Home, ShieldAlert, TrendingUp, Calendar, Activity,
@@ -142,27 +143,30 @@ function AlertCard({
   icon: Icon,
   label,
   value,
+  subtext,
   type,
 }: {
   icon: any;
   label: string;
   value: number;
+  subtext: string;
   type: 'warning' | 'info' | 'success';
 }) {
   const styles = {
-    warning: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', iconBg: 'bg-amber-100' },
-    info:    { bg: 'bg-blue-50',  border: 'border-blue-200',  text: 'text-blue-700',  iconBg: 'bg-blue-100' },
-    success: { bg: 'bg-emerald-50', border: 'border-emerald-200', text: 'text-emerald-700', iconBg: 'bg-emerald-100' },
+    warning: { borderLeft: 'border-l-[#FA8912]', text: 'text-[#FA8912]', iconBg: 'bg-[#FA8912]/10' },
+    info:    { borderLeft: 'border-l-[#3182CE]', text: 'text-[#3182CE]', iconBg: 'bg-[#3182CE]/10' },
+    success: { borderLeft: 'border-l-[#07735C]', text: 'text-[#07735C]', iconBg: 'bg-[#07735C]/10' },
   }[type];
 
   return (
-    <div className={`${styles.bg} border ${styles.border} rounded-xl p-4 flex items-center gap-3`}>
-      <div className={`${styles.iconBg} w-9 h-9 rounded-lg flex items-center justify-center shrink-0`}>
-        <Icon className={`w-5 h-5 ${styles.text}`} />
+    <div className={`bg-white shadow-sm border border-gray-100 rounded-2xl p-6 flex items-center gap-5 border-l-4 ${styles.borderLeft}`}>
+      <div className={`${styles.iconBg} w-14 h-14 rounded-full flex items-center justify-center shrink-0`}>
+        <Icon className={`w-6 h-6 ${styles.text}`} />
       </div>
       <div>
-        <p className={`text-xs font-medium ${styles.text} opacity-80`}>{label}</p>
-        <p className={`text-xl font-extrabold ${styles.text}`}>{value}</p>
+        <p className="text-sm font-semibold text-gray-500 mb-1">{label}</p>
+        <p className={`text-3xl font-extrabold ${styles.text} leading-none mb-2`}>{value}</p>
+        <p className="text-xs text-gray-400 font-medium">{subtext}</p>
       </div>
     </div>
   );
@@ -248,33 +252,33 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-extrabold text-gray-800">Dashboard</h1>
-          <p className="text-sm text-gray-400 font-medium capitalize mt-0.5">{dateStr}</p>
-        </div>
-        <div className="flex items-center gap-2 bg-guapi-green/10 text-guapi-green text-xs font-bold px-3 py-2 rounded-full">
-          <Activity className="w-3.5 h-3.5" />
-          Sistema Online
-        </div>
-      </div>
+      <AdminPageHeader title="Dashboard" />
 
       {/* Alertas de atenção */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <AlertCard icon={Clock}         label="Denúncias Pendentes"  value={stats?.contatosPendentes ?? 0}  type="warning" />
-        <AlertCard icon={AlertCircle}   label="Adoções Pendentes"    value={stats?.adocoesPendentes ?? 0}   type="info" />
-        <AlertCard icon={CheckCircle}   label="Pets Disponíveis"     value={stats?.petsDisponiveis ?? 0}    type="success" />
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <AlertCard icon={AlertCircle} label="Denúncias Pendentes" value={stats?.contatosPendentes ?? 0} subtext={stats?.contatosPendentes === 1 ? '1 denúncia aguardando' : stats?.contatosPendentes > 1 ? `${stats?.contatosPendentes} denúncias aguardando` : 'Nenhuma denúncia aguardando'} type="warning" />
+        <AlertCard icon={PawPrint}    label="Adoções Pendentes"   value={stats?.adocoesPendentes ?? 0}   subtext={stats?.adocoesPendentes === 1 ? '1 adoção pendente' : stats?.adocoesPendentes > 1 ? `${stats?.adocoesPendentes} adoções pendentes` : 'Nenhuma adoção pendente'} type="info" />
+        <AlertCard icon={CheckCircle} label="Pets Disponíveis"    value={stats?.petsDisponiveis ?? 0}    subtext={stats?.petsDisponiveis === 1 ? '1 pet disponível para adoção' : stats?.petsDisponiveis > 1 ? `${stats?.petsDisponiveis} pets disponíveis para adoção` : 'Nenhum pet disponível no momento'} type="success" />
       </div>
 
       {/* Introdução */}
-      <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 text-white shadow-lg">
-        <div className="flex items-start gap-4">
-          <div className="bg-guapi-green/20 p-3 rounded-xl">
-            <TrendingUp className="w-6 h-6 text-guapi-green" />
+      <div className="bg-[#044F3F] rounded-[2rem] p-8 sm:p-10 text-white shadow-md relative overflow-hidden">
+        {/* Background decorative SVG */}
+        <div className="absolute top-0 right-0 bottom-0 w-1/2 opacity-10 pointer-events-none">
+          <svg viewBox="0 0 400 400" className="w-full h-full object-cover">
+            <path d="M100 200 Q 150 100 200 200 T 300 200" stroke="white" strokeWidth="8" fill="none" />
+            <circle cx="200" cy="150" r="40" stroke="white" strokeWidth="8" fill="none" />
+            <circle cx="280" cy="250" r="30" stroke="white" strokeWidth="8" fill="none" />
+          </svg>
+        </div>
+        
+        <div className="relative z-10 flex flex-col sm:flex-row items-start gap-6 max-w-3xl">
+          <div className="bg-white/10 p-4 rounded-2xl backdrop-blur-sm shrink-0">
+            <TrendingUp className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-bold mb-1">Visão Geral do Sistema</h2>
-            <p className="text-gray-400 text-sm leading-relaxed">
+            <h2 className="text-2xl font-bold mb-3 tracking-tight">Visão Geral do Sistema</h2>
+            <p className="text-white/80 text-sm leading-relaxed max-w-2xl">
               Acompanhe em tempo real a distribuição dos animais cadastrados e o perfil dos usuários da plataforma Adota Pet Guapimirim. Use estas informações para planejar campanhas de adoção, vacinação e castração.
             </p>
           </div>

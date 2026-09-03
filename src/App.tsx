@@ -49,6 +49,10 @@ import AdminProtetores from "./pages/admin/AdminProtetores";
 import AdminUsuarioDetalhes from "./pages/admin/AdminUsuarioDetalhes";
 import AdminLogs from "./pages/admin/AdminLogs";
 import AdminConfiguracoes from "./pages/admin/AdminConfiguracoes";
+import AdminListaAnimais from "./pages/admin/AdminListaAnimais";
+import AdminAnimalDetalhes from "./pages/admin/AdminAnimalDetalhes";
+import AdminTransferenciaAnimais from "./pages/admin/AdminTransferenciaAnimais";
+import AdminAgendamentos from "./pages/admin/AdminAgendamentos";
 
 export default function App() {
   return (
@@ -100,6 +104,10 @@ export default function App() {
             <Route path="usuarios" element={<AdminUsuarios />} />
             <Route path="veterinarios" element={<AdminVeterinarios />} />
             <Route path="protetores" element={<AdminProtetores />} />
+            <Route path="lista-animais" element={<AdminListaAnimais />} />
+            <Route path="lista-animais/:id" element={<AdminAnimalDetalhes />} />
+            <Route path="transferencia" element={<AdminTransferenciaAnimais />} />
+            <Route path="agendamentos" element={<AdminAgendamentos />} />
             <Route path="usuarios/:id" element={<AdminUsuarioDetalhes />} />
             <Route path="logs" element={<AdminLogs />} />
             <Route path="configuracoes" element={<AdminConfiguracoes />} />

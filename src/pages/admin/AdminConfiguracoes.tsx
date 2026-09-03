@@ -2,11 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { getAdminUser, adminSalvarConfiguracao, adminGetConfiguracoes, PAPEL_LABEL } from '../../lib/api/admin';
 import { Save, User, MapPin, Mail, KeyRound, Shield, Accessibility } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
 const SectionHeader = ({ icon: Icon, title }: { icon: any; title: string }) => (
-  <div className="flex items-center gap-2 bg-guapi-green text-white px-4 py-2.5 rounded-t-lg">
-    <Icon className="w-4 h-4" />
-    <span className="text-sm font-semibold">{title}</span>
+  <div className="flex items-center gap-3 bg-gray-50 border-b border-gray-100 px-6 py-4 rounded-t-2xl">
+    <div className="w-8 h-8 rounded-lg bg-white border border-gray-200 shadow-sm flex items-center justify-center text-guapi-green">
+      <Icon className="w-4 h-4" />
+    </div>
+    <span className="text-sm font-bold text-gray-800 uppercase tracking-wider">{title}</span>
   </div>
 );
 
@@ -19,19 +22,19 @@ const Field = ({
   children: React.ReactNode;
   required?: boolean;
 }) => (
-  <div className="flex flex-col gap-1">
-    <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wide">
-      {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+  <div className="flex flex-col gap-2">
+    <label className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+      {label}{required && <span className="text-red-400 ml-1">*</span>}
     </label>
     {children}
   </div>
 );
 
 const inputCls =
-  'w-full border-0 border-b border-gray-200 bg-transparent py-2 text-sm text-gray-800 placeholder-gray-300 focus:outline-none focus:border-guapi-green transition-colors';
+  'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-guapi-green/20 focus:border-guapi-green transition-all bg-gray-50 hover:bg-white';
 
 const selectCls =
-  'w-full border-0 border-b border-gray-200 bg-transparent py-2 text-sm text-gray-700 focus:outline-none focus:border-guapi-green transition-colors';
+  'w-full border border-gray-200 rounded-xl px-4 py-3 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-guapi-green/20 focus:border-guapi-green transition-all bg-gray-50 hover:bg-white';
 
 // CPF/CNPJ formatter
 function formatCpfCnpj(value: string) {
@@ -193,15 +196,15 @@ export default function AdminConfiguracoes() {
   }, []);
 
   return (
-    <div className="max-w-4xl">
-      <h1 className="text-2xl font-bold text-gray-800 mb-1">Meus Dados</h1>
+    <div className="space-y-6">
+      <AdminPageHeader title="Meus Dados" subtitle="Gerencie suas informações e configurações da conta" />
 
-      <p className="text-sm text-gray-500 mb-6">
+      <p className="text-sm font-medium text-gray-500">
         Os campos marcados com asterisco (<span className="text-red-400">*</span>) são de preenchimento obrigatório.
       </p>
 
       {msg && (
-        <div className={`mb-6 px-4 py-3 rounded-lg text-sm font-medium ${
+        <div className={`px-6 py-4 rounded-xl text-sm font-bold shadow-sm ${
           msg.type === 'success'
             ? 'bg-green-50 text-green-700 border border-green-200'
             : 'bg-red-50 text-red-700 border border-red-200'
@@ -210,11 +213,11 @@ export default function AdminConfiguracoes() {
         </div>
       )}
 
-      <div className="space-y-6">
+      <div className="space-y-6 max-w-4xl">
         {/* ── Dados da Conta ───────────────────────────────── */}
-        <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm bg-white">
           <SectionHeader icon={User} title="Dados da Conta" />
-          <div className="bg-white p-6 space-y-6">
+          <div className="p-8 space-y-8">
 
             {/* Nome completo */}
             <Field label="Nome Completo" required>
@@ -223,7 +226,7 @@ export default function AdminConfiguracoes() {
                 value={form.nome}
                 readOnly
                 title="O nome não pode ser alterado aqui"
-                className={`${inputCls} bg-gray-50 text-gray-500 cursor-not-allowed`}
+                className={`${inputCls} bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 opacity-70`}
               />
             </Field>
 
@@ -280,9 +283,9 @@ export default function AdminConfiguracoes() {
             {/* Tipo / E-mail */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Field label="Tipo de Usuário">
-                <div className="border-b border-gray-200 py-2 flex items-center justify-between">
-                  <span className="text-sm text-gray-500">{PAPEL_LABEL[form.papel as keyof typeof PAPEL_LABEL] ?? form.papel}</span>
-                  <Shield className="w-4 h-4 text-gray-300" />
+                <div className="w-full border border-gray-200 rounded-xl px-4 py-3 bg-gray-100 text-sm font-medium text-gray-500 flex items-center justify-between opacity-70">
+                  <span>{PAPEL_LABEL[form.papel as keyof typeof PAPEL_LABEL] ?? form.papel}</span>
+                  <Shield className="w-4 h-4" />
                 </div>
               </Field>
               <Field label="E-mail" required>
@@ -291,7 +294,7 @@ export default function AdminConfiguracoes() {
                   value={form.email}
                   readOnly
                   title="O e-mail não pode ser alterado aqui"
-                  className={`${inputCls} bg-gray-50 text-gray-500 cursor-not-allowed`}
+                  className={`${inputCls} bg-gray-100 text-gray-500 cursor-not-allowed hover:bg-gray-100 opacity-70`}
                 />
               </Field>
             </div>
@@ -326,10 +329,10 @@ export default function AdminConfiguracoes() {
                     key={v}
                     type="button"
                     onClick={() => setForm(prev => ({ ...prev, isPcd: v }))}
-                    className={`px-6 py-1.5 rounded border text-sm font-medium transition-colors ${
+                    className={`px-8 py-2.5 rounded-xl border text-sm font-bold transition-all ${
                       form.isPcd === v
-                        ? 'bg-guapi-green/10 text-guapi-green border-guapi-green'
-                        : 'text-gray-500 border-gray-200 hover:border-guapi-green hover:text-guapi-green'
+                        ? 'bg-guapi-green text-white border-guapi-green shadow-sm'
+                        : 'bg-white text-gray-500 border-gray-200 hover:border-guapi-green/50 hover:bg-guapi-green/5'
                     }`}
                   >
                     {v === 'sim' ? 'Sim' : 'Não'}
@@ -341,11 +344,11 @@ export default function AdminConfiguracoes() {
         </div>
 
         {/* ── Endereço ─────────────────────────────────────── */}
-        <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm bg-white">
           <SectionHeader icon={MapPin} title="Endereço" />
-          <div className="bg-white p-6 space-y-6">
+          <div className="p-8 space-y-8">
             {/* Logradouro / Número / CEP */}
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_100px_140px] gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_160px] gap-6">
               <Field label="Logradouro">
                 <input
                   type="text"
@@ -424,9 +427,9 @@ export default function AdminConfiguracoes() {
         </div>
 
         {/* ── Envio de E-mails ──────────────────────────────── */}
-        <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm bg-white">
           <SectionHeader icon={Mail} title="Envio de e-mails automáticos" />
-          <div className="bg-white p-6">
+          <div className="p-8 space-y-6">
             <div className="bg-guapi-green/5 border border-guapi-green/20 rounded-lg p-4 mb-4 text-sm text-gray-700">
               <p className="font-semibold text-guapi-green mb-2 flex items-center gap-1.5">
                 <Mail className="w-4 h-4" />
@@ -457,9 +460,9 @@ export default function AdminConfiguracoes() {
         </div>
 
         {/* ── Trocar Senha ──────────────────────────────────── */}
-        <div className="rounded-lg border border-gray-200 overflow-hidden shadow-sm">
+        <div className="rounded-2xl border border-gray-100 overflow-hidden shadow-sm bg-white">
           <SectionHeader icon={KeyRound} title="Trocar a sua senha" />
-          <div className="bg-white p-6 space-y-6">
+          <div className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <Field label="Senha Atual">
                 <input
@@ -493,7 +496,7 @@ export default function AdminConfiguracoes() {
               <button
                 onClick={handleTrocarSenha}
                 disabled={savingSenha}
-                className="flex items-center gap-2 bg-guapi-green text-white text-sm font-semibold px-6 py-2.5 rounded-lg hover:bg-guapi-green-dark transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 bg-guapi-green hover:bg-[#044F3F] text-white text-sm font-bold px-8 py-3 rounded-xl transition-colors disabled:opacity-50 shadow-sm"
               >
                 <KeyRound className="w-4 h-4" />
                 {savingSenha ? 'Salvando...' : 'Trocar a sua senha'}
@@ -503,14 +506,14 @@ export default function AdminConfiguracoes() {
         </div>
 
         {/* ── Ações finais ──────────────────────────────────── */}
-        <div className="flex justify-end gap-3 pt-2 pb-8">
+        <div className="flex justify-end gap-3 pt-4 pb-8">
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center gap-2 bg-guapi-green text-white text-sm font-semibold px-8 py-2.5 rounded-lg hover:bg-guapi-green-dark transition-colors disabled:opacity-50 shadow-sm"
+            className="flex items-center gap-2 bg-guapi-green hover:bg-[#044F3F] text-white text-sm font-bold px-10 py-3 rounded-xl transition-colors disabled:opacity-50 shadow-sm"
           >
             <Save className="w-4 h-4" />
-            {saving ? 'Gravando...' : 'Gravar'}
+            {saving ? 'Gravando...' : 'Gravar Tudo'}
           </button>
         </div>
       </div>

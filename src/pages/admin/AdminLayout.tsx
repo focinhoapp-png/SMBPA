@@ -4,6 +4,7 @@ import {
   LayoutDashboard, Users, PawPrint, Heart, MessageSquare,
   LogOut, UserCircle, Image, Calendar, BookOpen, Activity,
   Stethoscope, HandHeart, PieChart, ClipboardList, ShieldAlert,
+  ArrowLeftRight, Building2,
 } from 'lucide-react';
 
 // Map cada rota a uma permissão
@@ -20,8 +21,10 @@ const NAV_ITEMS = [
   { name: 'Lista de Proprietários',path: '/admin/usuarios',        icon: Users,           permissao: 'usuarios' },
   { name: 'Lista de Veterinários', path: '/admin/veterinarios',    icon: Stethoscope,     permissao: 'veterinarios' },
   { name: 'Lista de Protetores',   path: '/admin/protetores',      icon: HandHeart,       permissao: 'protetores' },
+  { name: 'Lista de Animais',      path: '/admin/lista-animais',   icon: PawPrint,        permissao: 'pets' },
+  { name: 'Transferências',          path: '/admin/transferencia',icon: ArrowLeftRight,  permissao: 'pets' },
+  { name: 'Agendamentos',          path: '/admin/agendamentos',    icon: Calendar,        permissao: 'agendamentos' },
   { name: 'Logs',                  path: '/admin/logs',            icon: Activity,        permissao: 'logs' },
-  { name: 'Meus Dados',            path: '/admin/configuracoes',   icon: UserCircle,      permissao: 'meus_dados' },
 ];
 
 // Badge color per role
@@ -55,15 +58,17 @@ export default function AdminLayout() {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 font-sans overflow-hidden">
-      {/* Sidebar */}
-      <aside className="w-64 bg-gray-900 text-gray-300 flex flex-col">
-        <div className="h-16 flex items-center px-6 bg-gray-950 border-b border-gray-800">
-          <span className="text-white font-bold text-lg uppercase tracking-wider">SMBPA Admin</span>
+    <div className="flex h-screen bg-slate-50 font-sans overflow-hidden">
+      <aside className="w-[220px] bg-[#041B15] text-gray-300 flex flex-col shadow-xl z-20 shrink-0">
+        <div className="h-20 flex items-center bg-transparent border-0 px-6">
+          <div className="flex items-center gap-3">
+            <PawPrint className="w-6 h-6 text-white shrink-0" />
+            <span className="text-white font-bold text-lg uppercase tracking-wider truncate">SMBPA ADMIN</span>
+          </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto py-4">
-          <nav className="space-y-1 px-3">
+        <div className="flex-1 overflow-y-auto py-4 [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-guapi-green/30 hover:[&::-webkit-scrollbar-thumb]:bg-guapi-green/80 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <nav className="space-y-0.5 px-2">
             {navItems.map((item) => {
               const Icon = item.icon;
               const isActive = location.pathname.startsWith(item.path);
@@ -71,36 +76,23 @@ export default function AdminLayout() {
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-md transition-colors ${
-                    isActive ? 'bg-guapi-green text-white' : 'hover:bg-gray-800 hover:text-white'
+                  className={`flex items-center gap-2 px-3 mx-1.5 py-1.5 rounded-lg transition-all duration-200 text-[13px] ${
+                    isActive 
+                      ? 'bg-guapi-green/10 text-guapi-green font-medium' 
+                      : 'text-gray-400 hover:bg-white/5 hover:text-white'
                   }`}
                 >
-                  <Icon className="w-5 h-5" />
-                  {item.name}
+                  <Icon className={`w-[16px] h-[16px] shrink-0 ${isActive ? 'text-guapi-green' : 'text-gray-400'}`} />
+                  <span className="truncate">{item.name}</span>
                 </Link>
               );
             })}
           </nav>
         </div>
-
-        <div className="p-4 bg-gray-950 border-t border-gray-800 flex flex-col gap-2">
-          <div className="text-sm">
-            <p className="text-white font-bold truncate">{admin?.nome}</p>
-            <span className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full mt-1 uppercase tracking-wider ${ROLE_BADGE[papel] ?? 'bg-gray-700 text-white'}`}>
-              {PAPEL_LABEL[papel] ?? papel}
-            </span>
-          </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-sm text-red-400 hover:text-red-300 mt-2 transition-colors"
-          >
-            <LogOut className="w-4 h-4" /> Sair
-          </button>
-        </div>
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto bg-gray-50 p-8">
+      <main className="flex-1 overflow-y-auto bg-[#F8FAFC] p-6 lg:p-8">
         <Outlet />
       </main>
     </div>

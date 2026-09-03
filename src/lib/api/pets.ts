@@ -61,6 +61,10 @@ export async function listarPets(filtros: PetFiltros = {}) {
   else query = query.neq('status', 'cadastrado');
   if (search) query = query.ilike('nome', `%${search}%`);
 
+  // Filtro temporário para ocultar os pets de teste (incluindo os adotados) que não podem ser deletados via painel devido ao RLS
+  const mockPetIds = '("0985efc8-8cff-4986-bb37-697f19dbcdad","4616a05c-98b5-4064-adea-7ffc042365c5","3692283f-898f-410b-a94d-759588b58d90","b4a87907-43ff-4d1c-928e-72d8eaeef7c5","e0bbec17-5c2e-4a42-b11b-107776e92f7d","42f9bb89-122f-4138-bf7d-c8bfc23e8ffb","fdd7363d-f9da-439b-9797-0a2d88da3601","240011d2-349a-49ea-a237-39bd0cae160a","c269bb6b-a395-4318-8e8c-9b7a40f6763b","9238ba74-9f26-4d94-89bc-1b6367b38cbd","fb04d030-97cc-4ff7-89f8-0e4fc652a628","145a76ee-9de3-45c0-9bc4-50d4a10bc9ab","528d1bb6-1eff-402b-9c68-dd8ec8434172","f4c1288c-428a-4028-8697-e917edf50af5","223abeb5-b80b-4700-b678-ee0715c86d20","f61278f8-f8da-4317-92ce-104769af57eb","9a86b768-caee-4a03-8080-c37223caa07e","25366412-ce1d-49cd-8bab-62148fdf92a0","b550ea79-800e-4273-9052-bd9c725ead9a","02b0c466-f8c1-4d2d-b464-4706eccbd975")';
+  query = query.not('id', 'in', mockPetIds);
+
   const { data, error, count } = await query;
   if (error) throw error;
   return { pets: data as Pet[], total: count ?? 0 };

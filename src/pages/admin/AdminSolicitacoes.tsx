@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ClipboardList, CheckCircle, XCircle, Eye, Inbox, Heart } from 'lucide-react';
 import { adminListarPets, adminAtualizarStatusPet, adminDeletarPet, adminListarPetsDosSonhos } from '../../lib/api/admin';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
 export default function AdminSolicitacoes() {
   const [activeTab, setActiveTab] = useState<'pets' | 'sonhos'>('pets');
@@ -74,156 +75,159 @@ export default function AdminSolicitacoes() {
   };
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div className="flex items-center gap-3">
-          <ClipboardList className="w-8 h-8 text-guapi-green" />
-          <h1 className="text-2xl font-light text-gray-800">Solicitações</h1>
-        </div>
+    <div className="space-y-6">
+      <AdminPageHeader title="Solicitações" subtitle="Aprovações pendentes e pedidos de adoção especiais" />
+
+      {/* Tabs */}
+      <div className="flex gap-2 border-b border-gray-100 overflow-x-auto pb-px">
+        <button
+          onClick={() => setActiveTab('pets')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'pets' 
+              ? 'border-guapi-green text-guapi-green' 
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200'
+          }`}
+        >
+          <Inbox className="w-4 h-4" />
+          Aprovação de Pets
+          {petsTotal > 0 && (
+            <span className={`px-2 py-0.5 rounded-full text-[10px] ml-1 ${activeTab === 'pets' ? 'bg-guapi-green text-white' : 'bg-gray-200 text-gray-700'}`}>
+              {petsTotal}
+            </span>
+          )}
+        </button>
+        
+        <button
+          onClick={() => setActiveTab('sonhos')}
+          className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${
+            activeTab === 'sonhos' 
+              ? 'border-guapi-green text-guapi-green' 
+              : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-200'
+          }`}
+        >
+          <Heart className="w-4 h-4" />
+          Pedidos Pet dos Sonhos
+        </button>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden min-h-[600px]">
-        {/* Tabs */}
-        <div className="flex overflow-x-auto border-b border-gray-200">
-          <button
-            onClick={() => setActiveTab('pets')}
-            className={`flex-1 min-w-[200px] text-center py-4 text-sm font-medium border-b-4 transition-colors flex items-center justify-center gap-2 ${
-              activeTab === 'pets' 
-                ? 'border-yellow-400 text-gray-900' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Inbox className="w-5 h-5" />
-            Aprovação de Pets
-            {activeTab === 'pets' && petsTotal > 0 && (
-              <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">{petsTotal}</span>
-            )}
-          </button>
+      <div className="min-h-[600px]">
           
-          <button
-            onClick={() => setActiveTab('sonhos')}
-            className={`flex-1 min-w-[200px] text-center py-4 text-sm font-medium border-b-4 transition-colors flex items-center justify-center gap-2 ${
-              activeTab === 'sonhos' 
-                ? 'border-yellow-400 text-gray-900' 
-                : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
-            }`}
-          >
-            <Heart className="w-5 h-5" />
-            Pedidos Pet dos Sonhos
-          </button>
-        </div>
-
-        <div className="p-6">
-          
-          {/* Aba Aprovação de Pets */}
-          {activeTab === 'pets' && (
-            <div>
-              {loadingPets ? (
-                <div className="flex justify-center p-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-guapi-green"></div>
+        {/* Aba Aprovação de Pets */}
+        {activeTab === 'pets' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            {loadingPets ? (
+              <div className="flex justify-center p-16">
+                <div className="w-10 h-10 border-4 border-guapi-green border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : pets.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-green-400" />
                 </div>
-              ) : pets.length === 0 ? (
-                <div className="text-center p-12 text-gray-500">
-                  <CheckCircle className="w-12 h-12 text-green-400 mx-auto mb-3" />
-                  <p>Nenhum pet pendente de aprovação no momento.</p>
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {pets.map((pet) => (
-                    <div key={pet.id} className="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition bg-gray-50">
-                      <div className="h-48 bg-gray-200 relative">
-                        {pet.imagem_principal_url ? (
-                          <img src={pet.imagem_principal_url} alt={pet.nome} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center text-gray-400">Sem Imagem</div>
-                        )}
-                        <span className="absolute top-2 right-2 bg-yellow-400 text-yellow-900 text-xs font-bold px-2 py-1 rounded shadow">
-                          PENDENTE
-                        </span>
-                      </div>
-                      <div className="p-4">
-                        <h3 className="font-bold text-lg text-gray-800">{pet.nome}</h3>
-                        <p className="text-sm text-gray-600 mb-2 capitalize">{pet.especie} • {pet.sexo}</p>
-                        
-                        <div className="flex gap-2 mt-4">
-                          <button
-                            onClick={() => handleAprovarPet(pet.id)}
-                            className="flex-1 bg-guapi-green text-white py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-1 hover:bg-guapi-green-dark transition"
-                          >
-                            <CheckCircle className="w-4 h-4" /> Aprovar
-                          </button>
-                          <button
-                            onClick={() => handleRecusarPet(pet.id)}
-                            className="flex-1 bg-red-100 text-red-600 py-2 px-3 rounded text-sm font-medium flex items-center justify-center gap-1 hover:bg-red-200 transition"
-                          >
-                            <XCircle className="w-4 h-4" /> Recusar
-                          </button>
-                        </div>
+                <h3 className="text-lg font-bold text-gray-800 mb-1">Tudo em dia!</h3>
+                <p className="text-gray-500 text-sm">Nenhum pet pendente de aprovação no momento.</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pets.map((pet) => (
+                  <div key={pet.id} className="border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition bg-white flex flex-col">
+                    <div className="h-56 bg-gray-50 relative">
+                      {pet.imagem_principal_url ? (
+                        <img src={pet.imagem_principal_url} alt={pet.nome} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">Sem Imagem</div>
+                      )}
+                      <span className="absolute top-3 right-3 bg-yellow-100 text-yellow-800 border border-yellow-200 text-[10px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full shadow-sm">
+                        Pendente
+                      </span>
+                    </div>
+                    <div className="p-5 flex flex-col flex-grow">
+                      <h3 className="font-extrabold text-xl text-gray-800 mb-1">{pet.nome}</h3>
+                      <p className="text-sm font-medium text-gray-500 mb-4 capitalize">{pet.especie} • {pet.sexo}</p>
+                      
+                      <div className="flex gap-3 mt-auto">
+                        <button
+                          onClick={() => handleAprovarPet(pet.id)}
+                          className="flex-1 bg-emerald-50 text-emerald-700 py-2.5 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-emerald-100 transition border border-emerald-200 shadow-sm"
+                        >
+                          <CheckCircle className="w-4 h-4" /> Aprovar
+                        </button>
+                        <button
+                          onClick={() => handleRecusarPet(pet.id)}
+                          className="flex-1 bg-red-50 text-red-600 py-2.5 px-3 rounded-xl text-sm font-bold flex items-center justify-center gap-2 hover:bg-red-100 transition border border-red-200 shadow-sm"
+                        >
+                          <XCircle className="w-4 h-4" /> Recusar
+                        </button>
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
 
-          {/* Aba Pet dos Sonhos */}
-          {activeTab === 'sonhos' && (
-            <div>
-              {loadingSonhos ? (
-                <div className="flex justify-center p-12">
-                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-guapi-green"></div>
+        {/* Aba Pet dos Sonhos */}
+        {activeTab === 'sonhos' && (
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            {loadingSonhos ? (
+              <div className="flex justify-center p-16">
+                <div className="w-10 h-10 border-4 border-guapi-green border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            ) : sonhos.length === 0 ? (
+              <div className="text-center py-16">
+                <div className="w-16 h-16 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Inbox className="w-8 h-8 text-gray-300" />
                 </div>
-              ) : sonhos.length === 0 ? (
-                <div className="text-center p-12 text-gray-500">
-                  <Inbox className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-                  <p>Nenhum pedido de pet dos sonhos encontrado.</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm text-left text-gray-500">
-                    <thead className="text-xs text-gray-700 uppercase bg-gray-50">
-                      <tr>
-                        <th className="px-4 py-3">Data</th>
-                        <th className="px-4 py-3">Solicitante</th>
-                        <th className="px-4 py-3">Preferência</th>
-                        <th className="px-4 py-3">Contato</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {sonhos.map((pedido) => (
-                        <tr key={pedido.id} className="bg-white border-b hover:bg-gray-50">
-                          <td className="px-4 py-3 whitespace-nowrap">
+                <h3 className="text-lg font-bold text-gray-800 mb-1">Nenhum pedido encontrado</h3>
+                <p className="text-gray-500 text-sm">Não há pedidos de pet dos sonhos no momento.</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left whitespace-nowrap">
+                  <thead className="bg-gray-50/50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">Data</th>
+                      <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">Solicitante</th>
+                      <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">Preferência</th>
+                      <th className="px-6 py-4 text-[11px] font-bold uppercase tracking-wider text-gray-400">Contato</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {sonhos.map((pedido) => (
+                      <tr key={pedido.id} className="hover:bg-gray-50/50 transition-colors">
+                        <td className="px-6 py-5">
+                          <span className="font-bold text-gray-800 bg-gray-100 px-3 py-1.5 rounded-lg text-xs">
                             {new Date(pedido.created_at).toLocaleDateString('pt-BR')}
-                          </td>
-                          <td className="px-4 py-3 font-medium text-gray-900">
-                            {pedido.usuarios?.nome_completo || 'Desconhecido'}
-                          </td>
-                          <td className="px-4 py-3">
-                            <ul className="list-disc pl-4 space-y-1">
-                              {pedido.especie && <li>Espécie: <span className="capitalize">{pedido.especie}</span></li>}
-                              {pedido.sexo && <li>Sexo: <span className="capitalize">{pedido.sexo}</span></li>}
-                              {pedido.porte && <li>Porte: <span className="capitalize">{pedido.porte}</span></li>}
-                              {pedido.faixa_etaria && <li>Idade: <span className="capitalize">{pedido.faixa_etaria}</span></li>}
-                            </ul>
-                            {!pedido.especie && !pedido.sexo && !pedido.porte && !pedido.faixa_etaria && (
-                              <span className="italic text-gray-400">Qualquer característica</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <p>{pedido.usuarios?.telefone || 'Sem telefone'}</p>
-                            <p className="text-xs text-gray-400">{pedido.usuarios?.email}</p>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-          )}
+                          </span>
+                        </td>
+                        <td className="px-6 py-5 font-bold text-gray-800">
+                          {pedido.usuarios?.nome_completo || 'Desconhecido'}
+                        </td>
+                        <td className="px-6 py-5">
+                          <ul className="space-y-1 font-medium text-gray-600 text-xs">
+                            {pedido.especie && <li>Espécie: <span className="font-bold capitalize text-gray-800">{pedido.especie}</span></li>}
+                            {pedido.sexo && <li>Sexo: <span className="font-bold capitalize text-gray-800">{pedido.sexo}</span></li>}
+                            {pedido.porte && <li>Porte: <span className="font-bold capitalize text-gray-800">{pedido.porte}</span></li>}
+                            {pedido.faixa_etaria && <li>Idade: <span className="font-bold capitalize text-gray-800">{pedido.faixa_etaria}</span></li>}
+                          </ul>
+                          {!pedido.especie && !pedido.sexo && !pedido.porte && !pedido.faixa_etaria && (
+                            <span className="italic text-gray-400 font-medium">Qualquer característica</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-5">
+                          <p className="font-bold text-gray-800">{pedido.usuarios?.telefone || 'Sem telefone'}</p>
+                          <p className="text-xs font-medium text-gray-500 mt-0.5">{pedido.usuarios?.email}</p>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
-        </div>
       </div>
     </div>
   );

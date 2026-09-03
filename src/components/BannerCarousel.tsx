@@ -26,8 +26,8 @@ export default function BannerCarousel() {
   const prevSlide = () => setCurrentIndex((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <div className="w-full bg-white pt-4 pb-4">
-      <div className="relative w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 overflow-hidden rounded-2xl group h-[300px] md:h-[400px]">
+    <div className="w-full bg-white">
+      <div className="relative w-full overflow-hidden group h-[300px] md:h-[400px]">
         <AnimatePresence mode="popLayout" initial={false}>
           <motion.div
             key={currentIndex}
@@ -54,22 +54,6 @@ export default function BannerCarousel() {
             </div>
           </motion.div>
         </AnimatePresence>
-
-        <button
-          onClick={prevSlide}
-          className="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden sm:flex"
-          aria-label="Slide anterior"
-        >
-          <ChevronLeft className="w-6 h-6" />
-        </button>
-
-        <button
-          onClick={nextSlide}
-          className="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/30 hover:bg-white/50 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-10 hidden sm:flex"
-          aria-label="Próximo slide"
-        >
-          <ChevronRight className="w-6 h-6" />
-        </button>
 
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
           {slides.map((_, index) => (

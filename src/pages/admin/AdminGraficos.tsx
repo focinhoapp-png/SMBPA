@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { adminObterDadosGraficos } from '../../lib/api/admin';
-import { PieChart as PieChartIcon } from 'lucide-react';
+import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
-const COLORS = ['#1e90ff', '#718096', '#ff7300', '#10b981', '#8b5cf6', '#ec4899', '#f43f5e', '#6366f1'];
+const COLORS = ['#044F3F', '#10B981', '#0EA5E9', '#8B5CF6', '#F59E0B', '#F43F5E', '#84CC16', '#06B6D4'];
 
 export default function AdminGraficos() {
   const [loading, setLoading] = useState(true);
@@ -38,18 +38,17 @@ export default function AdminGraficos() {
     return especie;
   };
 
-  // Helper to get Custom Label for Pie Chart
   const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent, index, name, value }: any) => {
     const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 1.5;
+    const radius = innerRadius + (outerRadius - innerRadius) * 1.35;
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
   
+    if (percent < 0.05) return null; // hide small labels
+
     return (
-      <text x={x} y={y} fill="#000" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={12} fontWeight="500">
-        <tspan x={x} dy="-0.5em">{name}</tspan>
-        <tspan x={x} dy="1.2em">({value})</tspan>
-        <tspan x={x} dy="1.2em" fill="#000">{(percent * 100).toFixed(1)}%</tspan>
+      <text x={x} y={y} fill="#475569" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" fontSize={13} fontWeight="700">
+        {(percent * 100).toFixed(1)}%
       </text>
     );
   };
@@ -123,9 +122,12 @@ export default function AdminGraficos() {
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 border border-gray-200 shadow-sm rounded text-sm">
-          <p className="font-semibold text-gray-700">{payload[0].name}</p>
-          <p className="text-gray-600">Quantidade: {payload[0].value}</p>
+        <div className="bg-white/95 backdrop-blur-sm p-4 border border-gray-100 shadow-xl rounded-2xl text-sm min-w-[150px]">
+          <p className="font-bold text-gray-800 mb-1">{payload[0].name}</p>
+          <div className="flex items-center gap-2">
+            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: payload[0].payload.fill || payload[0].color }}></div>
+            <p className="text-gray-600 font-medium">Quantidade: <span className="text-gray-900 font-bold">{payload[0].value}</span></p>
+          </div>
         </div>
       );
     }
@@ -141,23 +143,23 @@ export default function AdminGraficos() {
   }
 
   return (
-    <div>
-      <div className="flex items-center gap-3 mb-6">
-        <PieChartIcon className="w-8 h-8 text-guapi-green" />
-        <h1 className="text-2xl font-light text-gray-800">Gráficos</h1>
-      </div>
+    <div className="space-y-6">
+      <AdminPageHeader 
+        title="Gráficos e Estatísticas" 
+        subtitle="Visualize a distribuição dos animais no sistema" 
+      />
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden min-h-[600px]">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden min-h-[600px]">
         {/* Tabs */}
-        <div className="flex overflow-x-auto border-b border-gray-200">
+        <div className="flex overflow-x-auto border-b border-gray-100 bg-gray-50/50">
           {TABS.map((tab, idx) => (
             <button
               key={idx}
               onClick={() => setActiveTab(idx)}
-              className={`flex-1 min-w-[200px] text-center py-4 text-sm font-medium border-b-4 transition-colors ${
+              className={`flex-1 min-w-[200px] text-center py-4 text-sm font-bold border-b-4 transition-all ${
                 activeTab === idx 
-                  ? 'border-yellow-400 text-gray-900' 
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+                  ? 'border-guapi-green text-guapi-green bg-white shadow-[0_4px_6px_-1px_rgba(0,0,0,0.02)]' 
+                  : 'border-transparent text-gray-400 hover:text-gray-700 hover:bg-gray-100/50'
               }`}
             >
               {tab}
@@ -169,14 +171,14 @@ export default function AdminGraficos() {
           {/* Filters */}
           {activeTab !== 0 && (
             <div className="mb-12">
-              <label className="block text-sm font-bold text-gray-800 mb-2">Espécie</label>
+              <label className="block text-sm font-bold text-gray-700 mb-2">Selecione a Espécie</label>
               <select 
                 value={selectedEspecie} 
                 onChange={(e) => setSelectedEspecie(e.target.value)}
-                className="w-48 border-b-2 border-gray-300 pb-1 focus:border-gray-800 outline-none text-gray-700 bg-transparent"
+                className="w-48 border border-gray-200 rounded-xl px-4 py-2.5 focus:border-guapi-green focus:ring-1 focus:ring-guapi-green outline-none text-gray-700 bg-gray-50 font-medium transition-all shadow-sm"
               >
-                <option value="cachorro">Canino</option>
-                <option value="gato">Felino</option>
+                <option value="cachorro">Cachorro</option>
+                <option value="gato">Gato</option>
               </select>
             </div>
           )}
@@ -193,19 +195,21 @@ export default function AdminGraficos() {
                     <Pie
                       data={pieData}
                       cx="50%"
-                      cy="50%"
-                      innerRadius={65}
-                      outerRadius={110}
-                      paddingAngle={2}
+                      cy="45%"
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={4}
                       dataKey="value"
                       label={renderCustomizedLabel}
-                      labelLine={true}
+                      labelLine={{ stroke: '#cbd5e1', strokeWidth: 1 }}
+                      stroke="none"
                     >
                       {pieData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
                     </Pie>
                     <Tooltip content={<CustomTooltip />} />
+                    <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: '13px', fontWeight: 500, color: '#475569' }}/>
                   </PieChart>
                 </ResponsiveContainer>
               </div>
@@ -214,25 +218,25 @@ export default function AdminGraficos() {
               <div className="h-[400px] w-full pr-8">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={barData} margin={{ top: 20, right: 30, left: 0, bottom: activeTab === 2 ? 100 : 20 }}>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
                     <XAxis 
                       dataKey="name" 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#000', fontSize: 12, fontWeight: 500 }}
+                      tick={{ fill: '#475569', fontSize: 13, fontWeight: 600 }}
                       angle={activeTab === 2 ? -45 : 0}
                       textAnchor={activeTab === 2 ? "end" : "middle"}
                       height={activeTab === 2 ? 120 : 40}
-                      tickFormatter={(value) => `${value} (${barData.find(d => d.name === value)?.value || 0})`}
+                      dy={10}
                     />
                     <YAxis 
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: '#000', fontSize: 12, fontWeight: 500 }}
-                      label={{ value: 'Quantidade', angle: -90, position: 'insideLeft', offset: -10, style: { textAnchor: 'middle', fill: '#000', fontSize: 12, fontWeight: 500 } }}
+                      tick={{ fill: '#64748b', fontSize: 13, fontWeight: 500 }}
+                      dx={-10}
                     />
-                    <Tooltip content={<CustomTooltip />} cursor={{fill: 'transparent'}} />
-                    <Bar dataKey="value" barSize={80} radius={[2, 2, 0, 0]}>
+                    <Tooltip content={<CustomTooltip />} cursor={{fill: '#f8fafc'}} />
+                    <Bar dataKey="value" barSize={48} radius={[6, 6, 0, 0]}>
                       {barData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                       ))}
