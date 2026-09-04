@@ -92,6 +92,8 @@ const RegisterPet = () => {
   });
 
   const [showErrors, setShowErrors] = useState(false);
+  const [showRgError, setShowRgError] = useState(false);
+
 
   const handleChange = (field: string, value: string | boolean) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -360,22 +362,29 @@ const RegisterPet = () => {
             <div className="flex justify-between items-center z-10 relative">
               <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentStep(1)}>
                 <div className={`w-12 h-12 rounded-full flex items-center justify-center border-[3px] bg-white ${currentStep >= 1 ? 'border-yellow-500 text-guapi-green-dark' : 'border-gray-300 text-gray-400'}`}>
-                  <PawPrint className="w-6 h-6" />
-                </div>
-                <span className={`mt-3 text-sm font-medium ${currentStep >= 1 ? 'text-guapi-green-dark' : 'text-gray-500'}`}>Dados Básicos</span>
-              </div>
-
-              <div className="flex flex-col items-center cursor-pointer" onClick={() => setCurrentStep(2)}>
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-[3px] bg-white ${currentStep >= 2 ? 'border-yellow-500 text-guapi-green-dark' : 'border-gray-300 text-gray-400'}`}>
                   <IdCard className="w-6 h-6" />
                 </div>
-                <span className={`mt-3 text-sm font-medium ${currentStep >= 2 ? 'text-guapi-green-dark' : 'text-gray-500'}`}>Foto do RG</span>
+                <span className={`mt-3 text-sm font-medium ${currentStep >= 1 ? 'text-guapi-green-dark' : 'text-gray-500'}`}>Foto do RG</span>
+              </div>
+
+              <div className="flex flex-col items-center cursor-pointer" onClick={() => {
+                  if (currentStep === 1 && !croppedImage) {
+                    setShowRgError(true);
+                  } else {
+                    setShowRgError(false);
+                    setCurrentStep(2);
+                  }
+                }}>
+                <div className={`w-12 h-12 rounded-full flex items-center justify-center border-[3px] bg-white ${currentStep >= 2 ? 'border-yellow-500 text-guapi-green-dark' : 'border-gray-300 text-gray-400'}`}>
+                  <PawPrint className="w-6 h-6" />
+                </div>
+                <span className={`mt-3 text-sm font-medium ${currentStep >= 2 ? 'text-guapi-green-dark' : 'text-gray-500'}`}>Dados Básicos</span>
               </div>
             </div>
           </div>
 
           <form className="flex-1 flex flex-col">
-            {currentStep === 1 && (
+            {currentStep === 2 && (
               <div className="flex-1 space-y-8">
                 {/* Row 1 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -684,8 +693,14 @@ const RegisterPet = () => {
               </div>
             )}
             
-            {currentStep === 2 && (
+            {currentStep === 1 && (
               <div className="flex-1 flex flex-col items-center pt-8">
+                 {showRgError && !croppedImage && (
+                   <div className="w-full max-w-md bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6 flex items-center gap-2 text-sm font-medium shadow-sm">
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                     É necessário adicionar e recortar a foto do RG para avançar.
+                   </div>
+                 )}
                  <h2 className="text-sm font-medium text-gray-800 mb-6 text-center">Imagem para o RG Animal, tamanho real (3 cm x 4 cm)</h2>
                  
                  {/* Top Preview */}
@@ -757,9 +772,10 @@ const RegisterPet = () => {
                     <button 
                       type="button"
                       onClick={() => {
-                        if (!isFormValid()) {
-                          setShowErrors(true);
+                        if (!croppedImage) {
+                          setShowRgError(true);
                         } else {
+                          setShowRgError(false);
                           setCurrentStep(2);
                         }
                       }}
@@ -771,10 +787,16 @@ const RegisterPet = () => {
                   {currentStep === 2 && (
                     <button 
                       type="button"
-                      onClick={handleFinalSubmit}
+                      onClick={() => {
+                        if (!isFormValid()) {
+                          setShowErrors(true);
+                        } else {
+                          handleFinalSubmit();
+                        }
+                      }}
                       className="bg-guapi-green text-white px-8 py-2 rounded-full font-medium hover:bg-guapi-green-dark transition-colors"
                     >
-                      Avançar
+                      Finalizar
                     </button>
                   )}
                </div>
