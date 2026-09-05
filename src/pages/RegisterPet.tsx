@@ -701,6 +701,42 @@ const RegisterPet = () => {
                      É necessário adicionar e recortar a foto do RG para avançar.
                    </div>
                  )}
+                 {/* Guia passo a passo */}
+                 <div className="w-full max-w-md bg-green-50 border border-green-200 rounded-xl p-5 mb-6 text-sm text-gray-700">
+                   <p className="font-bold text-green-800 text-base mb-4 flex items-center gap-2">
+                     <span>📸</span> Faça você mesmo a foto 3x4 do seu pet!
+                   </p>
+
+                   <div className="space-y-4">
+                     <div className="flex gap-3">
+                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white text-xs font-bold rounded-full flex items-center justify-center">1</span>
+                       <div>
+                         <p className="font-semibold text-gray-800">Tire ou escolha uma boa foto</p>
+                         <p className="text-gray-600 mt-0.5">Escolha uma foto do seu pet com boa iluminação e boa qualidade. De preferência, mantenha o rosto centralizado e o pet olhando para a câmera.</p>
+                       </div>
+                     </div>
+
+                     <div className="flex gap-3">
+                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white text-xs font-bold rounded-full flex items-center justify-center">2</span>
+                       <div>
+                         <p className="font-semibold text-gray-800">Envie a foto para o ChatGPT</p>
+                         <p className="text-gray-600 mt-0.5 mb-2">Abra o ChatGPT, adicione a foto do seu pet e, em seguida, copie e envie o prompt abaixo:</p>
+                         <div className="bg-white border border-green-300 rounded-lg p-3 text-gray-700 text-xs leading-relaxed italic select-all">
+                           Transforme esta foto em uma foto 3x4 do meu pet. Mantenha exatamente a posição original do animal e suas características. Recorte apenas do pescoço para cima e coloque um fundo branco liso, com iluminação uniforme. Não altere o animal.
+                         </div>
+                       </div>
+                     </div>
+
+                     <div className="flex gap-3">
+                       <span className="flex-shrink-0 w-6 h-6 bg-green-600 text-white text-xs font-bold rounded-full flex items-center justify-center">3</span>
+                       <div>
+                         <p className="font-semibold text-gray-800">Aguarde o resultado</p>
+                         <p className="text-gray-600 mt-0.5">Pronto! 🐶🐱 O ChatGPT irá preparar a foto 3x4 do seu pet, pronta para você utilizar no cadastro.</p>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+
                  <h2 className="text-sm font-medium text-gray-800 mb-6 text-center">Imagem para o RG Animal, tamanho real (3 cm x 4 cm)</h2>
                  
                  {/* Top Preview */}

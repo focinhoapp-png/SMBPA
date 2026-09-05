@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   PawPrint, Edit, Search, ArrowLeftRight, Download, FileText,
   Trash2, X, Users, Camera, Upload, User, Check, MessageSquare
@@ -13,6 +13,7 @@ import { supabase } from "../lib/supabase";
 
 export default function MyPets() {
   const { user, perfil } = useAuth();
+  const navigate = useNavigate();
   
   const [activeTab, setActiveTab] = useState("meusAnimais");
   const [pets, setPets] = useState<Pet[]>([]);
@@ -31,6 +32,10 @@ export default function MyPets() {
     if (user) {
       Promise.all([meusPets(), listarMinhasMensagens()])
         .then(([petsData, msgData]) => {
+          if (petsData.length === 0) {
+            navigate('/cadastrar-animal', { replace: true });
+            return;
+          }
           setPets(petsData);
           setMensagens(msgData);
         })

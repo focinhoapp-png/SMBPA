@@ -7,6 +7,7 @@ import { listarClinicas, listarDatasPorClinica, realizarAgendamento, Clinica, Ag
 import { getCurrentUser } from '../lib/api/auth';
 import { meusPets, Pet } from '../lib/api/pets';
 import { logoBase64 } from '../lib/logoBase64';
+import { useNavigate } from 'react-router-dom';
 
 const TERMOS = [
   'O animal precisa residir na cidade de Guapimirim/RJ;',
@@ -27,6 +28,7 @@ const TERMOS = [
 const PRIVACIDADE = 'AVISO DE PRIVACIDADE: Informamos que os dados pessoais fornecidos neste atendimento poderão ser coletados, tratados e compartilhados pela Administração Pública Municipal, no âmbito de suas competências legais e para execução de políticas públicas. O tratamento será realizado em conformidade com a Lei nº 13.709/2018 (Lei Geral de Proteção de Dados Pessoais – LGPD), observando os princípios da finalidade, adequação, necessidade, segurança e transparência.';
 
 export default function Castracao() {
+  const navigate = useNavigate();
   const [clinicas, setClinicas] = useState<Clinica[]>([]);
   const [datas, setDatas] = useState<AgendamentoData[]>([]);
   const [clinicaSelecionada, setClinicaSelecionada] = useState<Clinica | null>(null);
@@ -57,10 +59,12 @@ export default function Castracao() {
       if (user) {
         setUsuario(user);
         const userPets = await meusPets();
-        setPetsData(userPets);
-        if (userPets.length > 0) {
-          setSelectedPetId(userPets[0].id);
+        if (userPets.length === 0) {
+          navigate('/cadastrar-animal', { replace: true });
+          return;
         }
+        setPetsData(userPets);
+        setSelectedPetId(userPets[0].id);
       }
     } catch (err) {
       console.error('Erro ao buscar usuário e pets', err);
