@@ -185,7 +185,7 @@ const RegisterPet = () => {
   const handleGoToRg = () => {
     setShowRgModal(false);
     if (createdPetId) {
-      navigate(`/rg-animal/${createdPetId}`);
+      navigate(`/rg-animal/${createdPetId}`, { state: { fromRegister: true } });
     } else {
       navigate('/meus-pets');
     }

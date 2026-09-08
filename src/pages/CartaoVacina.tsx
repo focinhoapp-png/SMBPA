@@ -8,6 +8,24 @@ const CartaoVacina = () => {
   const [pet, setPet] = useState<any>(null);
   const [tutor, setTutor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    function handleResize() {
+      const containerWidth = window.innerWidth;
+      const targetWidth = containerWidth - 32;
+      const elementWidth = 794;
+      if (targetWidth < elementWidth) {
+        setScale(targetWidth / elementWidth);
+      } else {
+        setScale(1);
+      }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     document.title = "Cartão de Saúde do Animal";
@@ -93,11 +111,19 @@ const CartaoVacina = () => {
       `}</style>
       
       {/* Container principal - A4 Portrait */}
-      <div className="bg-white shadow-xl relative overflow-hidden print:shadow-none mx-auto print:mx-0" 
-           style={{ 
-             width: '794px', // A4 Portrait width
-             minHeight: '1123px', // A4 Portrait height
-           }}>
+      <div 
+        className="relative print:!scale-100 print:!w-auto print:!h-auto print:!block mx-auto print:mx-0"
+        style={{ 
+          width: `${794 * scale}px`, 
+          minHeight: `${1123 * scale}px` 
+        }}
+      >
+        <div className="bg-white shadow-xl overflow-hidden absolute top-0 left-0 origin-top-left print:relative print:shadow-none print:w-[794px] print:min-h-[1123px] print:transform-none" 
+             style={{ 
+               width: '794px', 
+               minHeight: '1123px',
+               transform: `scale(${scale})`
+             }}>
         
         <div className="p-12 w-full h-full flex flex-col pt-16">
           <h1 className="text-2xl font-medium text-gray-900 mb-6">Cartão de Saúde do Animal</h1>
@@ -216,6 +242,7 @@ const CartaoVacina = () => {
             <p className="text-[12px] text-gray-900 font-medium mb-4 mt-8">Para verificar sua autenticidade, escaneie o QR</p>
             <div className="mt-4">
               <div className="w-[130px] h-[130px] bg-contain bg-no-repeat bg-center" style={{ backgroundImage: `url("${qrCodeUrl}")` }}></div>
+            </div>
             </div>
           </div>
         </div>

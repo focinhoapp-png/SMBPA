@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import { PawPrint, Printer, Camera } from 'lucide-react';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import { PawPrint, Printer, Camera, ArrowLeft } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 
 const PawPatternBorder = ({ className = "" }) => (
@@ -30,9 +30,31 @@ const PawPatternBorder = ({ className = "" }) => (
 
 export default function RgAnimal() {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const fromRegister = location.state?.fromRegister || false;
+
   const [pet, setPet] = useState<any>(null);
   const [tutor, setTutor] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [scale, setScale] = useState(1);
+
+  useEffect(() => {
+    function handleResize() {
+      const containerWidth = window.innerWidth;
+      const targetWidth = containerWidth - 32; // 16px margin on each side
+      const elementWidth = 1123;
+      if (targetWidth < elementWidth) {
+        setScale(targetWidth / elementWidth);
+      } else {
+        setScale(1);
+      }
+    }
+    
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     async function loadData() {
@@ -121,6 +143,15 @@ export default function RgAnimal() {
   return (
     <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center font-sans">
       <div className="mb-8 print:hidden flex gap-4">
+        {fromRegister && (
+          <button 
+            onClick={() => navigate('/meus-pets')}
+            className="flex items-center gap-2 bg-white text-gray-700 border border-gray-300 px-6 py-2 rounded-full font-medium hover:bg-gray-50 transition-colors shadow-sm"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            Voltar para Meus Pets
+          </button>
+        )}
         <button 
           onClick={() => window.print()}
           className="flex items-center gap-2 bg-guapi-green text-white px-6 py-2 rounded-full font-medium hover:bg-guapi-green-dark transition-colors shadow-sm"
@@ -139,15 +170,23 @@ export default function RgAnimal() {
         }
       `}</style>
       
-      <div className="w-full flex justify-center pb-12 overflow-x-auto bg-gray-50 pt-8 print:p-0 print:bg-white print:overflow-hidden print:-mt-8">
-        <div className="shadow-2xl overflow-hidden relative print:shadow-none print:w-[1123px] print:h-[794px]" style={{ 
-          width: '1123px', 
-          height: '794px',
-          backgroundColor: '#eff9f3',
-          backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 10h10v10H10V10zM0 10h10v10H0V10z' fill='%23e0f0e6' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`
-        }}>
-          
-          <div className="flex flex-col items-center origin-top-left" style={{ transform: 'scale(1)', width: '100%', height: '100%' }}>
+      <div className="w-full flex justify-center pb-12 bg-gray-50 pt-8 print:p-0 print:bg-white print:-mt-8">
+        <div 
+          className="relative print:!scale-100 print:!w-auto print:!h-auto print:!block" 
+          style={{ 
+            height: `${794 * scale}px`, 
+            width: `${1123 * scale}px` 
+          }}
+        >
+          <div className="shadow-2xl overflow-hidden absolute top-0 left-0 origin-top-left print:relative print:shadow-none print:w-[1123px] print:h-[794px] print:transform-none" style={{ 
+            width: '1123px', 
+            height: '794px',
+            transform: `scale(${scale})`,
+            backgroundColor: '#eff9f3',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 10h10v10H10V10zM0 10h10v10H0V10z' fill='%23e0f0e6' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`
+          }}>
+            
+            <div className="flex flex-col items-center origin-top-left" style={{ transform: 'scale(1)', width: '100%', height: '100%' }}>
             <div className="flex flex-row items-center justify-center pt-16 origin-top" style={{ transform: 'scale(0.68)' }}>
               
               {/* FRENTE */}
@@ -405,13 +444,11 @@ export default function RgAnimal() {
                   Se ele se perder, o responsável poderá ser localizado através do QR Code.
                </p>
            </div>
-        </div>
-
+           </div>
+         </div>
       </div>
       </div>
-      
-    </div>
+      </div>
     </div>
   );
 }
-
