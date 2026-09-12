@@ -3,6 +3,48 @@ import { Link, useNavigate } from 'react-router-dom';
 import { PawPrint, Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { signUp } from '../lib/api/auth';
 
+export const isValidCPF = (cpf: string) => {
+  const strCPF = cpf.replace(/[^\d]+/g, '');
+  if (strCPF.length !== 11 || !!strCPF.match(/(\d)\1{10}/)) return false;
+  let sum = 0, rest;
+  for (let i = 1; i <= 9; i++) sum = sum + parseInt(strCPF.substring(i-1, i)) * (11 - i);
+  rest = (sum * 10) % 11;
+  if ((rest === 10) || (rest === 11)) rest = 0;
+  if (rest !== parseInt(strCPF.substring(9, 10))) return false;
+  sum = 0;
+  for (let i = 1; i <= 10; i++) sum = sum + parseInt(strCPF.substring(i-1, i)) * (12 - i);
+  rest = (sum * 10) % 11;
+  if ((rest === 10) || (rest === 11)) rest = 0;
+  if (rest !== parseInt(strCPF.substring(10, 11))) return false;
+  return true;
+};
+
+export const isValidCNPJ = (cnpj: string) => {
+  const strCNPJ = cnpj.replace(/[^\d]+/g, '');
+  if (strCNPJ.length !== 14 || !!strCNPJ.match(/(\d)\1{13}/)) return false;
+  let size = strCNPJ.length - 2;
+  let numbers = strCNPJ.substring(0, size);
+  let digits = strCNPJ.substring(size);
+  let sum = 0, pos = size - 7;
+  for (let i = 1; i <= size; i++) {
+    sum += parseInt(numbers.charAt(size - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  let result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+  if (result !== parseInt(digits.charAt(0))) return false;
+  size = size + 1;
+  numbers = strCNPJ.substring(0, size);
+  sum = 0;
+  pos = size - 7;
+  for (let i = 1; i <= size; i++) {
+    sum += parseInt(numbers.charAt(size - i)) * pos--;
+    if (pos < 2) pos = 9;
+  }
+  result = sum % 11 < 2 ? 0 : 11 - sum % 11;
+  if (result !== parseInt(digits.charAt(1))) return false;
+  return true;
+};
+
 export default function Cadastro() {
   const [formData, setFormData] = useState({
     cpfCnpj: '',
@@ -15,7 +57,10 @@ export default function Cadastro() {
     telefone: '',
     cep: '',
     senha: '',
-    confirmarSenha: ''
+    confirmarSenha: '',
+    razaoSocial: '',
+    nomeFantasia: '',
+    responsavel: ''
   });
   
   const [showPassword, setShowPassword] = useState(false);
@@ -78,6 +123,12 @@ export default function Cadastro() {
     setFormData({ ...formData, [name]: formattedValue });
   };
 
+  const digits = formData.cpfCnpj.replace(/\D/g, '');
+  const isCnpj = digits.length > 11;
+  const hasValidInput = (digits.length === 11 && isValidCPF(digits)) || (digits.length === 14 && isValidCNPJ(digits));
+
+  const isInvalid = (digits.length === 11 && !isValidCPF(digits)) || (digits.length === 14 && !isValidCNPJ(digits));
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -102,12 +153,13 @@ export default function Cadastro() {
       await signUp({
         email: formData.email,
         password: formData.senha,
-        nome_completo: formData.nomeCompleto,
+        nome_completo: isCnpj ? formData.razaoSocial : formData.nomeCompleto,
         cpf_cnpj: formData.cpfCnpj.replace(/\D/g, ''),
         telefone: formData.telefone,
         genero: formData.genero,
         is_pcd: formData.isPcd === 'sim',
-        ...(dataIso && { data_nascimento: dataIso })
+        ...(dataIso && { data_nascimento: dataIso }),
+        ...(isCnpj && { nome_fantasia: formData.nomeFantasia, responsavel: formData.responsavel })
       });
       
       setSuccess(true);
@@ -177,71 +229,103 @@ export default function Cadastro() {
                   placeholder="___.___.___-__" />
               </div>
 
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Nome completo*</label>
-                <input type="text" name="nomeCompleto" required value={formData.nomeCompleto} onChange={handleChange}
-                  disabled={loading}
-                  className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
-                  style={{ borderColor: 'var(--color-guapi-green)' }} />
-              </div>
-
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Nome social</label>
-                <input type="text" name="nomeSocial" value={formData.nomeSocial} onChange={handleChange}
-                  disabled={loading}
-                  className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
-                  style={{ borderColor: 'var(--color-guapi-green)' }} />
-              </div>
-
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">É pessoa com deficiência (PCD)?*</label>
-                <div className="flex gap-4">
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => setFormData({ ...formData, isPcd: 'sim' })}
-                    className={`flex-1 py-2 border rounded text-sm font-medium transition-colors ${formData.isPcd === 'sim' ? 'bg-white text-guapi-green ring-1 ring-guapi-green' : 'bg-white text-guapi-green disabled:opacity-50'}`}
-                    style={{ borderColor: 'var(--color-guapi-green)' }}
-                  >
-                    Sim
-                  </button>
-                  <button
-                    type="button"
-                    disabled={loading}
-                    onClick={() => setFormData({ ...formData, isPcd: 'nao' })}
-                    className={`flex-1 py-2 border rounded text-sm font-medium transition-colors ${formData.isPcd === 'nao' ? 'bg-white text-guapi-green ring-1 ring-guapi-green' : 'bg-white text-guapi-green disabled:opacity-50'}`}
-                    style={{ borderColor: 'var(--color-guapi-green)' }}
-                  >
-                    Não
-                  </button>
+              {!hasValidInput && isInvalid && (
+                <div className="text-red-500 text-xs mt-1">
+                  Documento inválido. Verifique os números digitados.
                 </div>
-              </div>
+              )}
 
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Data de Nascimento</label>
-                <input type="text" name="dataNascimento" value={formData.dataNascimento} onChange={handleChange} maxLength={10}
-                  disabled={loading}
-                  className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
-                  style={{ borderColor: 'var(--color-guapi-green)' }}
-                  placeholder="XX/XX/XXXX" />
-              </div>
+              {hasValidInput && !isCnpj && (
+                <>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Nome completo*</label>
+                    <input type="text" name="nomeCompleto" required value={formData.nomeCompleto} onChange={handleChange}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }} />
+                  </div>
 
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">Gênero</label>
-                <select name="genero" value={formData.genero} onChange={handleChange}
-                  disabled={loading}
-                  className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors bg-white text-gray-700 disabled:bg-gray-100"
-                  style={{ borderColor: 'var(--color-guapi-green)' }}>
-                  <option value="">--Selecione um gênero--</option>
-                  <option value="Feminino">Feminino</option>
-                  <option value="Masculino">Masculino</option>
-                  <option value="Prefiro não dizer">Prefiro não dizer</option>
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Data de Nascimento</label>
+                    <input type="text" name="dataNascimento" value={formData.dataNascimento} onChange={handleChange} maxLength={10}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }}
+                      placeholder="XX/XX/XXXX" />
+                  </div>
 
-              <div>
-                <label className="block text-xs text-gray-600 mb-1">E-mail*</label>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">É pessoa com deficiência (PCD)?*</label>
+                    <div className="flex gap-4">
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => setFormData({ ...formData, isPcd: 'sim' })}
+                        className={`flex-1 py-2 border rounded text-sm font-medium transition-colors ${formData.isPcd === 'sim' ? 'bg-white text-guapi-green ring-1 ring-guapi-green' : 'bg-white text-guapi-green disabled:opacity-50'}`}
+                        style={{ borderColor: 'var(--color-guapi-green)' }}
+                      >
+                        Sim
+                      </button>
+                      <button
+                        type="button"
+                        disabled={loading}
+                        onClick={() => setFormData({ ...formData, isPcd: 'nao' })}
+                        className={`flex-1 py-2 border rounded text-sm font-medium transition-colors ${formData.isPcd === 'nao' ? 'bg-white text-guapi-green ring-1 ring-guapi-green' : 'bg-white text-guapi-green disabled:opacity-50'}`}
+                        style={{ borderColor: 'var(--color-guapi-green)' }}
+                      >
+                        Não
+                      </button>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Gênero</label>
+                    <select name="genero" value={formData.genero} onChange={handleChange}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors bg-white text-gray-700 disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }}>
+                      <option value="">--Selecione um gênero--</option>
+                      <option value="Feminino">Feminino</option>
+                      <option value="Masculino">Masculino</option>
+                      <option value="Prefiro não dizer">Prefiro não dizer</option>
+                      <option value="Outro">Outro</option>
+                    </select>
+                  </div>
+                </>
+              )}
+
+              {isCnpj && (
+                <>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Razão Social*</label>
+                    <input type="text" name="razaoSocial" required value={formData.razaoSocial} onChange={handleChange}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }} />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Nome Fantasia</label>
+                    <input type="text" name="nomeFantasia" value={formData.nomeFantasia} onChange={handleChange}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }} />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">Responsável*</label>
+                    <input type="text" name="responsavel" required value={formData.responsavel} onChange={handleChange}
+                      disabled={loading}
+                      className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
+                      style={{ borderColor: 'var(--color-guapi-green)' }} />
+                  </div>
+                </>
+              )}
+
+              {hasValidInput && (
+                <>
+                  <div>
+                    <label className="block text-xs text-gray-600 mb-1">E-mail*</label>
                 <input type="email" name="email" required value={formData.email} onChange={handleChange}
                   disabled={loading}
                   className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors disabled:bg-gray-100"
@@ -284,13 +368,20 @@ export default function Cadastro() {
                 <div className="relative">
                   <input type={showConfirmPassword ? "text" : "password"} name="confirmarSenha" required value={formData.confirmarSenha} onChange={handleChange}
                     disabled={loading}
-                    className="w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors pr-10 disabled:bg-gray-100"
-                    style={{ borderColor: 'var(--color-guapi-green)' }} />
+                    className={`w-full border rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 transition-colors pr-10 disabled:bg-gray-100 ${
+                      formData.confirmarSenha.length > 0 && formData.senha !== formData.confirmarSenha ? 'border-red-500 focus:ring-red-500' : ''
+                    }`}
+                    style={{ borderColor: formData.confirmarSenha.length > 0 && formData.senha !== formData.confirmarSenha ? '#ef4444' : 'var(--color-guapi-green)' }} />
                   <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute inset-y-0 right-0 pr-3 flex items-center text-guapi-green hover:opacity-80">
                     {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {formData.confirmarSenha.length > 0 && formData.senha !== formData.confirmarSenha && (
+                  <p className="text-red-500 text-xs mt-1">As senhas não coincidem.</p>
+                )}
               </div>
+            </>
+            )}
 
               <div className="pt-4 flex items-center justify-between gap-4">
                 <Link to="/login" className="flex-1 text-center py-2 px-4 border text-guapi-green rounded font-medium hover:bg-guapi-green/5 transition-colors text-sm"

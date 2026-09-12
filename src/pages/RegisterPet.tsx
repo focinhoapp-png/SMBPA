@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Home, ChevronRight, PawPrint, IdCard } from 'lucide-react';
+import { Home, ChevronRight, PawPrint, IdCard, Copy, Check } from 'lucide-react';
 import Cropper from 'react-easy-crop';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
@@ -58,6 +58,14 @@ export async function getCroppedImg(
 
 const RegisterPet = () => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [copiedPrompt, setCopiedPrompt] = useState(false);
+
+  const handleCopyPrompt = () => {
+    const text = "Transforme esta foto em uma foto 3x4 do meu pet. Mantenha exatamente a posição original do animal e suas características. Recorte apenas do pescoço para cima e coloque um fundo branco liso, com iluminação uniforme. Não altere o animal.";
+    navigator.clipboard.writeText(text);
+    setCopiedPrompt(true);
+    setTimeout(() => setCopiedPrompt(false), 2000);
+  };
   const [isMicrochipado, setIsMicrochipado] = useState(false);
   const [createdPetId, setCreatedPetId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -721,8 +729,16 @@ const RegisterPet = () => {
                        <div>
                          <p className="font-semibold text-gray-800">Envie a foto para o ChatGPT</p>
                          <p className="text-gray-600 mt-0.5 mb-2">Abra o ChatGPT, adicione a foto do seu pet e, em seguida, copie e envie o prompt abaixo:</p>
-                         <div className="bg-white border border-green-300 rounded-lg p-3 text-gray-700 text-xs leading-relaxed italic select-all">
+                         <div className="bg-white border border-green-300 rounded-lg p-3 text-gray-700 text-xs leading-relaxed italic relative group select-text">
                            Transforme esta foto em uma foto 3x4 do meu pet. Mantenha exatamente a posição original do animal e suas características. Recorte apenas do pescoço para cima e coloque um fundo branco liso, com iluminação uniforme. Não altere o animal.
+                           <button 
+                             type="button"
+                             onClick={handleCopyPrompt}
+                             className="absolute top-2 right-2 p-1.5 bg-gray-100 hover:bg-gray-200 rounded text-gray-600 transition-colors flex items-center justify-center"
+                             title="Copiar prompt"
+                           >
+                             {copiedPrompt ? <Check size={14} className="text-green-600" /> : <Copy size={14} />}
+                           </button>
                          </div>
                        </div>
                      </div>

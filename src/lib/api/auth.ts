@@ -11,6 +11,8 @@ export interface SignUpData {
   genero?: string;
   is_pcd?: boolean;
   tipo_perfil?: string;
+  nome_fantasia?: string;
+  responsavel?: string;
 }
 
 // ─── Cadastro ────────────────────────────────────────────────────────────────
