@@ -5,6 +5,7 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { buscarPet, atualizarPet, type Pet } from '../lib/api/pets';
 import { supabase } from '../lib/supabase';
+import { dogColors, catColors } from '../data/breedsAndColors';
 
 const BAIRROS_GUAPIMIRIM = [
   'Bananal', 'Barreira', 'Caneca Fina', 'Centro', 'Cotia',
@@ -238,13 +239,17 @@ export default function ViewEditPet() {
                 className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-guapi-green text-gray-600 bg-white"
               >
                 <option value="">Selecione</option>
-                <option value="Preta">Preta</option>
-                <option value="Branca">Branca</option>
-                <option value="Caramelo">Caramelo</option>
-                <option value="Amarela">Amarela</option>
-                <option value="Marrom">Marrom</option>
-                <option value="Tigrada">Tigrada</option>
-                <option value="Cinza">Cinza</option>
+                {formData.especie === 'Cachorro' && dogColors.map(color => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
+                {formData.especie === 'Gato' && catColors.map(color => (
+                  <option key={color} value={color}>{color}</option>
+                ))}
+                {formData.especie !== 'Cachorro' && formData.especie !== 'Gato' && (
+                  [...dogColors, ...catColors].filter((c, i, arr) => arr.indexOf(c) === i).map(color => (
+                    <option key={color} value={color}>{color}</option>
+                  ))
+                )}
               </select>
             </div>
           </div>
