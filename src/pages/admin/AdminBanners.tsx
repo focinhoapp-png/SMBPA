@@ -47,8 +47,8 @@ export default function AdminBanners() {
       await adminSalvarBanner(payload, imagemFile || undefined);
       setIsModalOpen(false);
       loadBanners();
-    } catch {
-      alert('Erro ao salvar banner.');
+    } catch (err: any) {
+      alert(err.message || 'Erro ao salvar banner.');
     } finally {
       setSaving(false);
     }
@@ -164,7 +164,7 @@ export default function AdminBanners() {
               </div>
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-gray-500 mb-2 flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4" /> Imagem do Banner
+                  <ImageIcon className="w-4 h-4" /> Imagem do Banner <span className="normal-case text-[10px] text-gray-400 font-normal">(Tamanho recomendado: 1920x400px)</span>
                 </label>
                 <input type="file" accept="image/*" onChange={e => setImagemFile(e.target.files?.[0] || null)} className="w-full text-sm text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-guapi-green/10 file:text-guapi-green hover:file:bg-guapi-green/20 transition-all cursor-pointer" />
               </div>

@@ -20,7 +20,9 @@ export default function Login() {
     setLoading(true);
     try {
       await signIn(email, password);
-      window.location.href = '/painel';
+      // Use replace to avoid back-button issues, and do not execute any further state updates
+      window.location.replace('/painel');
+      return; // Important: exit early!
     } catch (err: any) {
       const msg = err?.message ?? '';
       if (msg.includes('Invalid login credentials')) {
@@ -30,8 +32,7 @@ export default function Login() {
       } else {
         setError('Ocorreu um erro ao fazer login. Tente novamente.');
       }
-    } finally {
-      setLoading(false);
+      setLoading(false); // Only set loading to false if there was an error
     }
   };
 

@@ -303,7 +303,13 @@ export async function adminSalvarBanner(banner: any, imagemFile?: File) {
   if (imagemFile) {
     const ext = imagemFile.name.split('.').pop();
     const path = `banners/${Date.now()}.${ext}`;
-    const { data: uploaded } = await supabase.storage.from('banners').upload(path, imagemFile, { upsert: true });
+    const { data: uploaded, error: uploadError } = await supabase.storage.from('banners').upload(path, imagemFile, { upsert: true });
+    
+    if (uploadError) {
+      console.error('Erro de upload:', uploadError);
+      throw new Error(`Erro de upload: ${uploadError.message}`);
+    }
+
     if (uploaded) {
       const { data: { publicUrl } } = supabase.storage.from('banners').getPublicUrl(path);
       imagem_url = publicUrl;
@@ -313,15 +319,15 @@ export async function adminSalvarBanner(banner: any, imagemFile?: File) {
   const payload = { ...banner, imagem_url };
   if (payload.id) {
     const { id, ...rest } = payload;
-    const { data, error } = await supabase.from('banners').update(rest).eq('id', id).select().single();
+    const { error } = await supabase.from('banners').update(rest).eq('id', id);
     if (error) throw error;
     await registrarLog({ acao: 'editar_banner', tabela_afetada: 'banners', registro_id: id });
-    return data;
+    return { success: true };
   } else {
-    const { data, error } = await supabase.from('banners').insert(payload).select().single();
+    const { error } = await supabase.from('banners').insert(payload);
     if (error) throw error;
     await registrarLog({ acao: 'criar_banner', tabela_afetada: 'banners' });
-    return data;
+    return { success: true };
   }
 }
 

@@ -23,12 +23,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [perfil, setPerfil] = useState<any | null>(null);
 
   const fetchPerfil = async (userId: string) => {
-    const { data } = await supabase
-      .from('usuarios')
-      .select('*')
-      .eq('auth_id', userId)
-      .single();
-    setPerfil(data);
+    try {
+      const { data } = await supabase
+        .from('usuarios')
+        .select('*')
+        .eq('auth_id', userId)
+        .single();
+      setPerfil(data);
+    } catch (err) {
+      console.error('Erro ao buscar perfil:', err);
+      setPerfil(null);
+    }
   };
 
   useEffect(() => {
