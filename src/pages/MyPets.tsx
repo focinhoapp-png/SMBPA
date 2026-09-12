@@ -354,7 +354,7 @@ export default function MyPets() {
                       <div className="flex justify-between items-center text-sm">
                         <span className="text-gray-500 font-medium">Nascimento</span>
                         <span className="font-bold text-gray-800">
-                          {pet.data_nascimento ? new Date(pet.data_nascimento).toLocaleDateString('pt-BR') : 'Não informado'}
+                          {pet.data_nascimento ? pet.data_nascimento.split('-').reverse().join('/') : 'Não informado'}
                         </span>
                       </div>
                     </div>
