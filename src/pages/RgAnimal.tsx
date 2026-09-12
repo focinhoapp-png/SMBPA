@@ -244,7 +244,7 @@ export default function RgAnimal() {
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Microchip</h4>
-                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.microchipado ? `Sim (${currentPet.numero_microchip})` : "Não"}</p>
+                    <p className="text-[18px] font-medium text-gray-900 mt-1 leading-none">{currentPet.microchipado ? `(${currentPet.numero_microchip})` : "Não"}</p>
                   </div>
                   <div>
                     <h4 className="text-[15px] font-bold text-guapi-green leading-none">Raça</h4>

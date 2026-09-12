@@ -455,20 +455,22 @@ export default function MyPets() {
 
         {activeTab === "mensagens" && (
           <div className="space-y-4">
-            <div className="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 mb-4">
-              <h3 className="font-bold text-gray-800 text-lg">Minhas Mensagens e Denúncias</h3>
-              <p className="text-sm text-gray-500">Acompanhe o retorno das suas solicitações feitas pelo site.</p>
-            </div>
-            
             {mensagens.length === 0 ? (
               <div className="py-20 text-center bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center shadow-sm">
                 <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mb-4">
                   <MessageSquare className="w-10 h-10 text-gray-300" />
                 </div>
                 <h3 className="text-xl font-bold text-gray-800 mb-2">Nenhuma mensagem</h3>
-                <p className="text-gray-500 text-sm max-w-sm">
+                <p className="text-gray-500 text-sm max-w-sm mb-6">
                   Você ainda não enviou nenhuma denúncia ou solicitação pelo nosso sistema.
                 </p>
+                <Link
+                  to="/form-smbepa-responde"
+                  className="inline-flex items-center gap-2 bg-guapi-green text-white font-bold text-sm px-6 py-3 rounded-xl hover:bg-guapi-green-dark transition-colors shadow-sm hover:shadow-md"
+                >
+                  <MessageSquare className="w-4 h-4" />
+                  CONTACTAR
+                </Link>
               </div>
             ) : (
               <div className="space-y-4">
