@@ -201,43 +201,44 @@ export default function MyPets() {
           </div>
         </div>
 
-        <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 bg-white p-1.5 rounded-xl border border-gray-100 shadow-sm w-fit">
+        <div className="flex overflow-x-auto no-scrollbar gap-2 mb-8 bg-white p-1.5 rounded-xl border border-gray-100 shadow-sm w-full sm:w-fit">
           <button
             onClick={() => setActiveTab("meusAnimais")}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2.5 transition-all whitespace-nowrap ${activeTab === "meusAnimais" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`px-3 sm:px-5 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "meusAnimais" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
           >
-            <PawPrint className="w-4 h-4" />
-            Meus Animais
+            <PawPrint className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Meus Animais</span>
           </button>
           <button
             onClick={() => setActiveTab("pretendentes")}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2.5 transition-all whitespace-nowrap ${activeTab === "pretendentes" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`px-3 sm:px-5 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "pretendentes" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
           >
-            <Users className="w-4 h-4" />
-            Pretendentes
+            <Users className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Pretendentes</span>
           </button>
           <button
             onClick={() => setActiveTab("receberTutela")}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2.5 transition-all whitespace-nowrap ${activeTab === "receberTutela" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`px-3 sm:px-5 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "receberTutela" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
           >
-            <ArrowLeftRight className="w-4 h-4" />
-            Receber Tutela
+            <ArrowLeftRight className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Receber Tutela</span>
           </button>
           <button
             onClick={() => setActiveTab("historico")}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2.5 transition-all whitespace-nowrap ${activeTab === "historico" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`px-3 sm:px-5 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "historico" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
           >
-            <FileText className="w-4 h-4" />
-            Histórico
+            <FileText className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Histórico</span>
           </button>
           <button
             onClick={() => setActiveTab("mensagens")}
-            className={`px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2.5 transition-all whitespace-nowrap ${activeTab === "mensagens" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
+            className={`px-3 sm:px-5 py-2.5 rounded-lg text-sm font-bold flex items-center justify-center gap-2.5 transition-all whitespace-nowrap flex-1 sm:flex-none ${activeTab === "mensagens" ? "bg-guapi-green text-white shadow-md" : "text-gray-500 hover:bg-gray-50 hover:text-gray-800"}`}
           >
-            <MessageSquare className="w-4 h-4" />
-            Mensagens
+            <MessageSquare className="w-4 h-4 shrink-0" />
+            <span className="hidden sm:inline">Mensagens</span>
           </button>
         </div>
+
 
         {activeTab === "meusAnimais" && (
           <div className="space-y-6">
