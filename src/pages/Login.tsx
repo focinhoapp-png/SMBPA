@@ -20,7 +20,7 @@ export default function Login() {
     setLoading(true);
     try {
       await signIn(email, password);
-      navigate('/painel');
+      window.location.href = '/painel';
     } catch (err: any) {
       const msg = err?.message ?? '';
       if (msg.includes('Invalid login credentials')) {
