@@ -57,6 +57,30 @@ export default function RgAnimal() {
   }, []);
 
   useEffect(() => {
+    // A4 landscape em pixels a 96dpi: 297mm = ~1122px, 210mm = ~793px
+    // O card tem 1123x794px, então a escala ideal é ~0.666
+    const A4_W_PX = 1122;
+    const CARD_W = 1123;
+    const printScale = A4_W_PX / CARD_W;
+
+    function beforePrint() {
+      const box = document.getElementById('rg-scale-box');
+      if (box) box.style.setProperty('--print-scale', String(printScale));
+    }
+    function afterPrint() {
+      const box = document.getElementById('rg-scale-box');
+      if (box) box.style.removeProperty('--print-scale');
+    }
+
+    window.addEventListener('beforeprint', beforePrint);
+    window.addEventListener('afterprint', afterPrint);
+    return () => {
+      window.removeEventListener('beforeprint', beforePrint);
+      window.removeEventListener('afterprint', afterPrint);
+    };
+  }, []);
+
+  useEffect(() => {
     async function loadData() {
       try {
         const { data: petData, error: petError } = await supabase
@@ -141,8 +165,8 @@ export default function RgAnimal() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8 flex flex-col items-center font-sans">
-      <div className="mb-8 print:hidden flex gap-4">
+    <div className="min-h-screen print:min-h-0 bg-gray-100 p-8 print:p-0 flex flex-col items-center font-sans">
+      <div className="mb-8 print-hidden flex gap-4">
         {fromRegister && (
           <button 
             onClick={() => navigate('/meus-pets')}
@@ -163,28 +187,59 @@ export default function RgAnimal() {
 
       <style>{`
         @media print {
-          @page { size: A4 landscape; margin: 0; }
-          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-          .print-card { box-shadow: none !important; margin: 0 !important; page-break-inside: avoid; border: none !important; overflow: hidden !important; }
-          .no-print { display: none !important; }
+          @page { size: A4 landscape; margin: 0mm; }
+          html, body {
+            width: 297mm;
+            height: 210mm;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+            overflow: hidden;
+          }
+          .print-hidden { display: none !important; }
+          #rg-print-wrapper {
+            display: flex !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            width: 297mm !important;
+            height: 210mm !important;
+            overflow: hidden !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            background: white !important;
+          }
+          #rg-scale-box {
+            transform-origin: top left !important;
+            transform: scale(var(--print-scale, 0.666)) !important;
+            width: 1123px !important;
+            height: 794px !important;
+            flex-shrink: 0 !important;
+            box-shadow: none !important;
+          }
         }
       `}</style>
       
-      <div className="w-full flex justify-center pb-12 bg-gray-50 pt-8 print:p-0 print:bg-white print:-mt-8">
-        <div 
-          className="relative print:!scale-100 print:!w-auto print:!h-auto print:!block" 
-          style={{ 
-            height: `${794 * scale}px`, 
-            width: `${1123 * scale}px` 
+      <div
+        id="rg-print-wrapper"
+        className="w-full flex justify-center pb-12 bg-gray-50 pt-8 print:p-0 print:bg-white print:-mt-8"
+      >
+        <div
+          className="relative"
+          style={{
+            height: `${794 * scale}px`,
+            width: `${1123 * scale}px`
           }}
         >
-          <div className="shadow-2xl overflow-hidden absolute top-0 left-0 origin-top-left print:relative print:shadow-none print:w-[1123px] print:h-[794px] print:transform-none" style={{ 
-            width: '1123px', 
-            height: '794px',
-            transform: `scale(${scale})`,
-            backgroundColor: '#eff9f3',
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 10h10v10H10V10zM0 10h10v10H0V10z' fill='%23e0f0e6' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`
-          }}>
+          <div
+            id="rg-scale-box"
+            className="shadow-2xl overflow-hidden absolute top-0 left-0 origin-top-left"
+            style={{
+              width: '1123px',
+              height: '794px',
+              transform: `scale(${scale})`,
+              backgroundColor: '#eff9f3',
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h20v20H0V0zm10 10h10v10H10V10zM0 10h10v10H0V10z' fill='%23e0f0e6' fill-opacity='0.4' fill-rule='evenodd'/%3E%3C/svg%3E")`
+            }}
+          >
             
             <div className="flex flex-col items-center origin-top-left" style={{ transform: 'scale(1)', width: '100%', height: '100%' }}>
             <div className="flex flex-row items-center justify-center pt-16 origin-top" style={{ transform: 'scale(0.68)' }}>
