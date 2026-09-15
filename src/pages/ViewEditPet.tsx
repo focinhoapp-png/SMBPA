@@ -326,36 +326,6 @@ export default function ViewEditPet() {
             </div>
           </div>
 
-          <div className="mb-4 border-b border-gray-200 pb-4">
-            <h2 className="text-lg font-bold text-gray-800">Local de Nascimento do Animal</h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div>
-               <label className="block text-sm font-medium text-gray-700 mb-1">Município:</label>
-              <input
-                type="text"
-                value="Guapimirim"
-                readOnly
-                disabled
-                className="w-full border border-gray-200 rounded px-3 py-2 text-sm bg-gray-50 text-gray-400 cursor-not-allowed outline-none"
-              />
-            </div>
-            <div>
-               <label className="block text-sm font-medium text-gray-700 mb-1">Bairro:</label>
-              <select 
-                name="bairro"
-                value={formData.bairro}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:border-guapi-green text-gray-600 bg-white"
-              >
-                <option value="">-- Selecione o Bairro --</option>
-                {BAIRROS_GUAPIMIRIM.map(b => (
-                  <option key={b} value={b}>{b}</option>
-                ))}
-              </select>
-            </div>
-          </div>
 
           <div className="mb-4">
              <label className="block text-sm font-medium text-gray-700 mb-4 flex items-center gap-2">

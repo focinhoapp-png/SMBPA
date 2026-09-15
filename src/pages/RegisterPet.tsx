@@ -490,40 +490,6 @@ const RegisterPet = () => {
                   </div>
                 </div>
 
-                {/* Local de Nascimento */}
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mt-4">
-                  <div className="col-span-1 md:col-span-4 mt-2">
-                     <h3 className="text-lg font-medium text-gray-800 mb-4">Local de Nascimento do Animal</h3>
-                     <div className="grid grid-cols-2 gap-6">
-                        <div className="flex flex-col items-start">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Cidade:</label>
-                          <input type="text" value="Guapimirim" readOnly disabled className="w-full border border-gray-200 rounded px-3 py-2 bg-gray-50 text-gray-500 font-medium cursor-not-allowed outline-none text-sm" />
-                        </div>
-                        <div className="flex flex-col items-start">
-                          <label className="block text-sm font-medium text-gray-700 mb-2">Bairro:</label>
-                          <select value={formData.bairro} onChange={(e) => handleChange('bairro', e.target.value)} className="w-full border border-gray-300 rounded px-3 py-2 bg-white focus:ring-2 focus:ring-guapi-green outline-none text-sm text-gray-600">
-                            <option>Selecione o bairro</option>
-                            <option>Centro</option>
-                            <option>Parada Modelo</option>
-                            <option>Bananal</option>
-                            <option>Caneca Fina</option>
-                            <option>Limoeiro</option>
-                            <option>Iconha</option>
-                            <option>Vale das Pedrinhas</option>
-                            <option>Vila Olímpia</option>
-                            <option>Segredo</option>
-                            <option>Paraíso</option>
-                            <option>Parada Ideal</option>
-                            <option>Barreira</option>
-                            <option>Sapé</option>
-                            <option>Cotia</option>
-                            <option>Gleba</option>
-                          </select>
-                          <ErrorMessage condition={formData.bairro === '' || formData.bairro === 'Selecione o bairro'} />
-                        </div>
-                     </div>
-                  </div>
-                </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
                   <div className="flex flex-col items-start mt-2">
@@ -660,22 +626,8 @@ const RegisterPet = () => {
                   </>
                 )}
 
-                  {formData.castrado === 'Sim' && (
-                    <div className="grid grid-cols-1 gap-6 mt-6">
-                      <div className="flex flex-col items-start w-full md:w-1/2">
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Comprovante de castração:<span className="text-red-500">*</span></label>
-                        <FileUploadArea 
-                          onFileSelect={(file) => setFormData(prev => ({ ...prev, castracaoFile: file }))} 
-                        />
-                        <p className="text-xs text-gray-500 mt-2">
-                          Clique <a href="#" className="text-blue-600 font-medium hover:underline">aqui</a> para baixar o modelo de declaração de castração.
-                        </p>
-                        <p className="text-xs text-gray-500 mt-1">
-                          Anexe o comprovante de castração (para animais com mais de 6 meses) em um único arquivo PDF, com limite de 2 MB.
-                        </p>
-                      </div>
-                    </div>
-                  )}
+
+
 
                 <div className="pt-8 flex flex-col items-start items-start">
                   <label className="block text-sm font-bold text-gray-800 mb-2">Declaração de Veracidade:<span className="text-red-500">*</span></label>
