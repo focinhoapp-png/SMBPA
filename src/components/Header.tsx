@@ -46,30 +46,30 @@ export default function Header() {
           </a>
 
           <nav className="hidden md:flex space-x-6 items-center">
-            <a
-              href="/adotar"
+            <Link
+              to="/adotar"
               className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
             >
               Adotar
-            </a>
+            </Link>
             <Link
               to="/doe-um-pet"
               className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
             >
               Doar
             </Link>
-            <a
-              href="/adotados"
+            <Link
+              to="/adotados"
               className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
             >
               Adotados
-            </a>
-            <a
-              href="/eventos"
+            </Link>
+            <Link
+              to="/eventos"
               className="text-gray-700 hover:text-guapi-orange font-semibold transition-colors"
             >
               Eventos
-            </a>
+            </Link>
 
             <div className="relative" ref={dropdownRef}>
               <button
@@ -171,12 +171,13 @@ export default function Header() {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-t border-gray-100">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            <a
-              href="/adotar"
+            <Link
+              to="/adotar"
+              onClick={() => setIsMenuOpen(false)}
               className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md"
             >
               Adotar
-            </a>
+            </Link>
             <Link
               to="/doe-um-pet"
               onClick={() => setIsMenuOpen(false)}
@@ -184,18 +185,20 @@ export default function Header() {
             >
               Doar
             </Link>
-            <a
-              href="/adotados"
+            <Link
+              to="/adotados"
+              onClick={() => setIsMenuOpen(false)}
               className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md"
             >
               Adotados
-            </a>
-            <a
-              href="/eventos"
+            </Link>
+            <Link
+              to="/eventos"
+              onClick={() => setIsMenuOpen(false)}
               className="block px-3 py-2 text-base font-semibold text-gray-700 hover:text-guapi-orange hover:bg-guapi-orange/10 rounded-md"
             >
               Eventos
-            </a>
+            </Link>
 
             <div className="pt-2 pb-1 border-t border-gray-100 mt-2">
               <span className="block px-3 py-2 text-base font-bold text-gray-800">
