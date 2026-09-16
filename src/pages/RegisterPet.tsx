@@ -83,7 +83,7 @@ const RegisterPet = () => {
     adocao: '',
     numeroMicrochip: '',
     confirmeNumeroMicrochip: '',
-    bairro: '',
+
     declaro: false,
     sociavelAnimais: '',
     sociavelPessoas: '',
@@ -174,7 +174,6 @@ const RegisterPet = () => {
       (formData.castrado === 'Não' || formData.castrado === 'Sim') &&
       formData.comunitario !== '' &&
       formData.adocao !== '' &&
-      formData.bairro !== '' && formData.bairro !== 'Selecione o bairro' &&
       formData.declaro;
       
     const FilesValid = isAdocaoCard ? (!!formData.vacinacaoFile && !!formData.vermifugacaoFile && !!formData.imagem1File && !!formData.imagem2File && !!formData.imagem3File && !!formData.imagem4File) : true;
@@ -255,7 +254,6 @@ const RegisterPet = () => {
         numero_microchip: formData.numeroMicrochip,
         comunitario: formData.comunitario === 'Sim',
         para_adocao: formData.adocao === 'Sim',
-        bairro: formData.bairro,
         sociavel_animais: formData.sociavelAnimais === 'Sim',
         sociavel_pessoas: formData.sociavelPessoas === 'Sim',
         descricao: formData.descricao,
