@@ -24,7 +24,7 @@ export default function AdminPets() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('');
+  const [statusFiltro, setStatusFiltro] = useState('disponivel');
   const [loading, setLoading] = useState(true);
 
   const loadPets = () => {
