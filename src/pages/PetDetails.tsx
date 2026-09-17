@@ -45,6 +45,34 @@ export default function PetDetails() {
     );
   }
 
+  // Pets com tutor particular e status 'cadastrado' não têm perfil público
+  const temTutor = !!pet.tutor_id;
+  const disponivelParaPerfil = pet.status === 'disponivel' || pet.status === 'em_processo' || pet.status === 'adotado' || !temTutor;
+
+  if (!disponivelParaPerfil) {
+    return (
+      <div className="font-sans bg-white pt-[80px] min-h-screen flex flex-col">
+        <Header />
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 px-4 text-center">
+          <div className="w-20 h-20 bg-gray-100 rounded-full flex items-center justify-center mb-2">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 9v2m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-700">Este pet não está disponível</h2>
+          <p className="text-gray-500 max-w-md">
+            Este animal já possui um tutor responsável e não está disponível para adoção no momento.
+          </p>
+          <Link to="/adotar" className="mt-4 bg-guapi-green hover:bg-guapi-green-dark text-white font-bold py-3 px-8 rounded transition-colors">
+            Ver pets disponíveis
+          </Link>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+
   return (
     <div className="font-sans bg-white selection:bg-guapi-orange selection:text-white pt-[80px]">
       <Header />
