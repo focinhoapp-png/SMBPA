@@ -73,6 +73,7 @@ export interface ContatoData {
   ponto_referencia?: string;
   nome_contato?: string;
   email_contato?: string;
+  anonimo?: boolean;
   arquivos?: File[];
 }
 
@@ -95,6 +96,7 @@ export async function enviarContato(dados: ContatoData): Promise<void> {
       ponto_referencia: dados.ponto_referencia,
       nome_contato: dados.nome_contato,
       email_contato: dados.email_contato,
+      anonimo: dados.anonimo ?? false,
     })
     .select()
     .single();

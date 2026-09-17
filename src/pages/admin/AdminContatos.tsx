@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { adminListarContatos, adminResponderContato } from '../../lib/api/admin';
-import { RefreshCw, ChevronDown, Check, Archive, MessageSquare } from 'lucide-react';
+import { RefreshCw, ChevronDown, Check, Archive, MessageSquare, Paperclip } from 'lucide-react';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
 const STATUS_OPTIONS = [
@@ -9,6 +9,19 @@ const STATUS_OPTIONS = [
   { value: 'respondido', label: 'Respondido' },
   { value: 'arquivado', label: 'Arquivado' },
 ];
+
+const TOPICO_BADGE: Record<string, string> = {
+  'Denúncia': 'bg-red-100 text-red-700',
+  'Denúncia - Maus Tratos': 'bg-red-100 text-red-700',
+  'Reclamação': 'bg-orange-100 text-orange-700',
+  'Elogios': 'bg-green-100 text-green-700',
+  'Sugestão': 'bg-blue-100 text-blue-700',
+  'Solicitação': 'bg-purple-100 text-purple-700',
+  'Solicitação - Castração': 'bg-purple-100 text-purple-700',
+  'Solicitação - Feira': 'bg-purple-100 text-purple-700',
+  'Solicitação - Horário': 'bg-purple-100 text-purple-700',
+  'Solicitação - Localização': 'bg-purple-100 text-purple-700',
+};
 
 const STATUS_BADGE: Record<string, string> = {
   pendente: 'bg-yellow-100 text-yellow-700',
@@ -96,16 +109,33 @@ export default function AdminContatos() {
                 setResposta(contato.resposta || '');
               }}
             >
-              <div>
-                <div className="flex items-center gap-3 mb-2">
-                  <p className="font-extrabold text-gray-800 text-lg">{contato.nome}</p>
-                  <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm ${STATUS_BADGE[contato.status] ?? 'bg-gray-100 text-gray-700 border border-gray-200'}`}>
-                    {contato.status}
-                  </span>
+                <div>
+                  <div className="flex items-center gap-3 mb-2 flex-wrap">
+                    <p className="font-extrabold text-gray-800 text-lg">{contato.nome_contato || 'Anônimo'}</p>
+                    {contato.anonimo && (
+                      <span className="px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold bg-orange-100 text-orange-700 border border-orange-200" title="Este usuário solicitou anonimato">
+                        🕵️ Solicitou Anonimato
+                      </span>
+                    )}
+                    <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold shadow-sm ${STATUS_BADGE[contato.status] ?? 'bg-gray-100 text-gray-700 border border-gray-200'}`}>
+                      {contato.status || 'pendente'}
+                    </span>
+                    {contato.topico && (
+                      <span className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${TOPICO_BADGE[contato.topico] ?? 'bg-gray-100 text-gray-600'}`}>
+                        {contato.topico}
+                      </span>
+                    )}
+                    {contato.contato_arquivos?.length > 0 && (
+                      <span className="flex items-center gap-1 text-xs text-gray-400">
+                        <Paperclip className="w-3 h-3" />{contato.contato_arquivos.length} arquivo(s)
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-medium text-gray-400">{contato.email_contato || 'Sem e-mail'} • {new Date(contato.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</p>
+                  {(contato.endereco || contato.ponto_referencia) && (
+                    <p className="text-xs text-gray-500 mt-1">📍 {[contato.endereco, contato.ponto_referencia].filter(Boolean).join(' — ')}</p>
+                  )}
                 </div>
-                <p className="font-medium text-gray-600 mb-1">{contato.assunto || contato.tipo_solicitacao}</p>
-                <p className="text-xs font-medium text-gray-400">{contato.email} • {new Date(contato.created_at).toLocaleDateString('pt-BR')}</p>
-              </div>
               <div className={`w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center transition-transform duration-300 ${expandedId === contato.id ? 'rotate-180 bg-guapi-green/10 text-guapi-green' : 'text-gray-400'}`}>
                 <ChevronDown className="w-5 h-5 shrink-0" />
               </div>
@@ -118,6 +148,25 @@ export default function AdminContatos() {
                   <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                     <p className="text-sm font-medium text-gray-700 whitespace-pre-wrap leading-relaxed">{contato.mensagem}</p>
                   </div>
+                  {contato.contato_arquivos?.length > 0 && (
+                    <div className="mt-3">
+                      <p className="text-xs font-bold uppercase tracking-wider text-gray-400 mb-2">Arquivos anexados</p>
+                      <div className="flex flex-wrap gap-3">
+                        {contato.contato_arquivos.map((arq: any) => (
+                          <a
+                            key={arq.id}
+                            href={arq.arquivo_url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-guapi-green hover:bg-green-50 transition-colors shadow-sm"
+                          >
+                            <Paperclip className="w-4 h-4" />
+                            {arq.nome_arquivo}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <div className="mb-6">

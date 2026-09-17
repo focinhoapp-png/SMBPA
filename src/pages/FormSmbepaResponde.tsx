@@ -43,8 +43,9 @@ export default function FormSmbepaResponde() {
         mensagem: atendente ? `${mensagem}\n\nAtendido por: ${atendente}` : mensagem,
         endereco,
         ponto_referencia: pontoReferencia,
-        nome_contato: anonimo ? 'Anônimo' : (perfil?.nome_completo ?? 'Não informado'),
-        email_contato: anonimo ? '' : (user?.email ?? ''),
+        nome_contato: perfil?.nome_completo ?? 'Não informado',
+        email_contato: user?.email ?? '',
+        anonimo,
         arquivos: selectedFiles,
       });
       alert('Contato enviado com sucesso!');
