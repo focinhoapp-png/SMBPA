@@ -511,28 +511,3 @@ export async function adminCriarAdmin(dados: { nome: string; email: string; senh
   return data;
 }
 
-// ─── Contatos / Denúncias ─────────────────────────────────────────────────────
-export async function adminListarContatos(page = 1, limit = 20, status?: string) {
-  const offset = (page - 1) * limit;
-  let query = supabase
-    .from('contatos_smbepa')
-    .select('*, contato_arquivos(id, arquivo_url, nome_arquivo)', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
-
-  if (status) query = query.eq('status', status);
-
-  const { data, error, count } = await query;
-  if (error) throw error;
-  return { contatos: data, total: count ?? 0 };
-}
-
-export async function adminResponderContato(id: string, resposta: string, status: string) {
-  const { error } = await supabase
-    .from('contatos_smbepa')
-    .update({ resposta, status, respondido_em: new Date().toISOString() })
-    .eq('id', id);
-  if (error) throw error;
-  await registrarLog({ acao: 'responder_contato', tabela_afetada: 'contatos_smbepa', registro_id: id, dados_novos: { status } });
-}
-
