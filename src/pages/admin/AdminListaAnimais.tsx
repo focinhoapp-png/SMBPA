@@ -6,7 +6,6 @@ import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
 const STATUS_OPTIONS = [
   { value: '', label: 'Todos' },
-  { value: 'disponivel', label: 'Seguro (Disponível)' },
   { value: 'em_processo', label: 'Em Processo' },
   { value: 'adotado', label: 'Adotado' },
   { value: 'cadastrado', label: 'Cadastrado' },
@@ -44,7 +43,7 @@ export default function AdminListaAnimais() {
   const loadPets = () => {
     setLoading(true);
     // Usando os filtros existentes no backend (nome e status)
-    adminListarPets(page, 50, { search: nomeFiltro, status: statusFiltro || undefined, especie: especieFiltro || undefined })
+    adminListarPets(page, 50, { search: nomeFiltro, status: statusFiltro || undefined, especie: especieFiltro || undefined, comTutor: true })
       .then(({ pets, total }) => {
         let filteredPets = pets || [];
         
