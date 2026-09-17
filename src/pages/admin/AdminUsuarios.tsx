@@ -128,7 +128,7 @@ export default function AdminUsuarios() {
               ) : filtered.map((u, index) => (
                 <tr 
                   key={u.id} 
-                  onClick={() => navigate(`/admin/usuarios/${u.id}`)}
+                  onClick={() => navigate(`/admin/usuarios/${u.id}`, { state: { usuario: u } })}
                   className="hover:bg-gray-50/50 transition-colors cursor-pointer"
                 >
                   <td className="px-6 py-4 font-bold text-gray-800">{u.nome_completo || '—'}</td>

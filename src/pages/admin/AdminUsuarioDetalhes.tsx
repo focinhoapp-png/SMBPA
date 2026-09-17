@@ -1,27 +1,30 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, ChevronDown, PawPrint } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function AdminUsuarioDetalhes() {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [usuario, setUsuario] = useState<any>(null);
+  const location = useLocation();
+  const [usuario, setUsuario] = useState<any>(location.state?.usuario || null);
   const [animais, setAnimais] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!location.state?.usuario);
   const [loadingAnimais, setLoadingAnimais] = useState(false);
   const [activeTab, setActiveTab] = useState('dados');
 
   useEffect(() => {
+    // Se já temos os dados via navigation state, não precisa buscar
+    if (location.state?.usuario) return;
+
     async function loadUser() {
       try {
+        // Usa o RPC que tem SECURITY DEFINER (ignora RLS)
         const { data, error } = await supabase
-          .from('usuarios')
-          .select('*')
-          .eq('id', id)
-          .single();
+          .rpc('listar_proprietarios', { p_limit: 500, p_offset: 0 });
         if (error) throw error;
-        setUsuario(data);
+        const found = (data?.usuarios || []).find((u: any) => u.id === id);
+        if (found) setUsuario(found);
       } catch (error) {
         console.error('Erro ao carregar usuário:', error);
       } finally {
@@ -38,7 +41,7 @@ export default function AdminUsuarioDetalhes() {
       setLoadingAnimais(true);
       supabase
         .from('pets')
-        .select('id, nome, especie, raca, sexo, status, imagem_principal_url')
+        .select('id, nome, especie, raca, sexo, status, imagem_principal_url, pet_imagens(id, url, ordem)')
         .eq('tutor_id', id)
         .order('created_at', { ascending: false })
         .then(({ data, error }) => {
@@ -226,13 +229,16 @@ export default function AdminUsuarioDetalhes() {
                       >
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            {animal.imagem_principal_url ? (
-                              <img src={animal.imagem_principal_url} alt={animal.nome} className="w-9 h-9 rounded-full object-cover border border-gray-100" />
-                            ) : (
-                              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
-                                <PawPrint className="w-4 h-4 text-gray-300" />
-                              </div>
-                            )}
+                            {(() => {
+                              const rgPhoto = animal.pet_imagens?.find((img: any) => img.ordem === 0)?.url || animal.imagem_principal_url;
+                              return rgPhoto ? (
+                                <img src={rgPhoto} alt={animal.nome} className="w-9 h-9 rounded-full object-cover border border-gray-100" />
+                              ) : (
+                                <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                                  <PawPrint className="w-4 h-4 text-gray-300" />
+                                </div>
+                              );
+                            })()}
                             <span className="font-semibold text-gray-800">{animal.nome}</span>
                           </div>
                         </td>

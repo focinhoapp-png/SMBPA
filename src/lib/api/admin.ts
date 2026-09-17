@@ -163,7 +163,7 @@ export async function adminListarPets(page = 1, limit = 20, filtros: any = {}) {
   const offset = (page - 1) * limit;
   let query = supabase
     .from('pets')
-    .select('*, pet_imagens(id, url, ordem)', { count: 'exact' })
+    .select('*, pet_imagens(id, url, ordem), usuarios!tutor_id(nome_completo, email, telefone)', { count: 'exact' })
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1);
 
@@ -189,7 +189,28 @@ export async function adminListarPets(page = 1, limit = 20, filtros: any = {}) {
 
   const { data, error, count } = await query;
   if (error) throw error;
-  return { pets: data, total: count ?? 0 };
+
+  // Busca os proprietários via RPC (ignora RLS) para preencher tutores que vieram nulos
+  let petsMerged = data;
+  try {
+    const { data: ownersData } = await supabase.rpc('listar_proprietarios', { p_limit: 2000, p_offset: 0 });
+    const owners = ownersData?.usuarios || [];
+    
+    petsMerged = data?.map(pet => {
+      // Se RLS bloqueou a leitura do usuário (usuarios null), tentamos encontrar na lista de proprietários
+      if (!pet.usuarios && pet.tutor_id) {
+        const foundOwner = owners.find((u: any) => u.id === pet.tutor_id);
+        if (foundOwner) {
+          return { ...pet, usuarios: foundOwner };
+        }
+      }
+      return pet;
+    });
+  } catch (err) {
+    console.error('Erro ao buscar tutores adicionais:', err);
+  }
+
+  return { pets: petsMerged, total: count ?? 0 };
 }
 
 export async function adminTransferirPet(petId: string, novoTutorId: string) {
