@@ -43,7 +43,7 @@ export default function AdminListaAnimais() {
   const loadPets = () => {
     setLoading(true);
     // Usando os filtros existentes no backend (nome e status)
-    adminListarPets(page, 50, { search: nomeFiltro, status: statusFiltro || undefined, especie: especieFiltro || undefined, comTutor: true })
+    adminListarPets(page, 50, { search: nomeFiltro, status: statusFiltro || undefined, especie: especieFiltro || undefined, apenasParticulares: true })
       .then(({ pets, total }) => {
         let filteredPets = pets || [];
         

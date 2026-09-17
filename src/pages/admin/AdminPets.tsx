@@ -24,12 +24,12 @@ export default function AdminPets() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
-  const [statusFiltro, setStatusFiltro] = useState('disponivel');
+  const [statusFiltro, setStatusFiltro] = useState('');
   const [loading, setLoading] = useState(true);
 
   const loadPets = () => {
     setLoading(true);
-    adminListarPets(page, 20, { search, status: statusFiltro || undefined })
+    adminListarPets(page, 20, { search, status: statusFiltro || undefined, apenasAdocaoOuComunitarios: true })
       .then(({ pets, total }) => {
         setPets(pets || []);
         setTotal(total);
