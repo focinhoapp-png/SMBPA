@@ -195,9 +195,16 @@ export default function AdminListaAnimais() {
               >
                 <td className="px-6 py-4 text-gray-600 capitalize">{pet.especie || '-'}</td>
                 <td className="px-6 py-4 font-bold text-gray-800">
-                  <span className="hover:text-guapi-green transition-colors">
-                    {pet.nome || '-'}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={pet.pet_imagens?.find((img: any) => img.ordem === 0)?.url || pet.imagem_principal_url || `https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=60&w=50&h=50`}
+                      alt={pet.nome}
+                      className="w-10 h-10 rounded-full object-cover bg-gray-100 ring-2 ring-gray-100 shrink-0"
+                    />
+                    <span className="hover:text-guapi-green transition-colors">
+                      {pet.nome || '-'}
+                    </span>
+                  </div>
                 </td>
                 <td className="px-6 py-4 text-gray-600 font-mono text-xs">{pet.numero_microchip || '-'}</td>
                 <td className="px-6 py-4 text-gray-600 capitalize">{pet.sexo || '-'}</td>

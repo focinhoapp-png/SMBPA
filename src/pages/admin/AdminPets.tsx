@@ -135,7 +135,7 @@ export default function AdminPets() {
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-4">
                       <img
-                        src={pet.imagem_principal_url || `https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=60&w=50&h=50`}
+                        src={pet.pet_imagens?.find((img: any) => img.ordem === 0)?.url || pet.imagem_principal_url || `https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=60&w=50&h=50`}
                         alt={pet.nome}
                         className="w-12 h-12 rounded-full object-cover bg-gray-100 ring-4 ring-gray-50"
                       />
