@@ -9,7 +9,6 @@ const STATUS_OPTIONS = [
   { value: 'disponivel', label: 'Disponível' },
   { value: 'em_processo', label: 'Em Processo' },
   { value: 'adotado', label: 'Adotado' },
-  { value: 'cadastrado', label: 'Cadastrado' },
 ];
 
 const STATUS_BADGE: Record<string, string> = {
