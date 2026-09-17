@@ -401,15 +401,22 @@ export async function adminDeletarHistoria(id: string) {
 // ─── Admin: contatos ──────────────────────────────────────────────────────────
 export async function adminListarContatos(page = 1, limit = 20, status?: string) {
   const offset = (page - 1) * limit;
-  let query = supabase
-    .from('contatos_smbepa')
-    .select('*, contato_arquivos(*)', { count: 'exact' })
-    .order('created_at', { ascending: false })
-    .range(offset, offset + limit - 1);
-  if (status) query = query.eq('status', status);
-  const { data, error, count } = await query;
-  if (error) throw error;
-  return { contatos: data, total: count ?? 0 };
+  
+  // 1. Busca os contatos já unidos com arquivos, em JSON, via RPC (ignora RLS)
+  const { data: contatosData, error: contatosError } = await supabase.rpc('admin_listar_contatos_json', {
+    p_limit: limit,
+    p_offset: offset,
+    p_status: status || null
+  });
+  if (contatosError) throw contatosError;
+
+  // 2. Busca o total de contatos via RPC
+  const { data: totalData, error: totalError } = await supabase.rpc('admin_contar_contatos', {
+    p_status: status || null
+  });
+  if (totalError) throw totalError;
+
+  return { contatos: contatosData || [], total: totalData || 0 };
 }
 
 export async function adminResponderContato(id: string, resposta: string, status: string) {
