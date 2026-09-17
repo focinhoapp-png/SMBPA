@@ -53,8 +53,7 @@ export default function AdminListaAnimais() {
           filteredPets = filteredPets.filter(p => p.sexo === sexoFiltro);
         }
         if (microchipFiltro) {
-          // Assume que pode haver um campo microchip no banco ou exibe vazio
-          filteredPets = filteredPets.filter(p => p.microchip?.includes(microchipFiltro));
+          filteredPets = filteredPets.filter(p => p.numero_microchip?.includes(microchipFiltro));
         }
 
         setPets(filteredPets);
@@ -200,7 +199,7 @@ export default function AdminListaAnimais() {
                     {pet.nome || '-'}
                   </span>
                 </td>
-                <td className="px-6 py-4 text-gray-600 font-mono text-xs">{pet.microchip || '-'}</td>
+                <td className="px-6 py-4 text-gray-600 font-mono text-xs">{pet.numero_microchip || '-'}</td>
                 <td className="px-6 py-4 text-gray-600 capitalize">{pet.sexo || '-'}</td>
                 <td className="px-6 py-4 text-gray-600 capitalize">
                   <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold tracking-wider uppercase inline-block ${
