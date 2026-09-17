@@ -13,7 +13,7 @@ const NAV_ITEMS = [
   { name: 'Dashboard',             path: '/admin/dashboard',       icon: LayoutDashboard, permissao: 'dashboard' },
   { name: 'Solicitações',          path: '/admin/solicitacoes',    icon: ClipboardList,   permissao: 'solicitacoes' },
   { name: 'Gráficos',              path: '/admin/graficos',        icon: PieChart,        permissao: 'graficos' },
-  { name: 'Pets',                  path: '/admin/pets',            icon: PawPrint,        permissao: 'pets' },
+  { name: 'Pets Disponíveis',      path: '/admin/pets',            icon: PawPrint,        permissao: 'pets' },
   { name: 'Adoções',               path: '/admin/adocoes',         icon: Heart,           permissao: 'adocoes' },
   { name: 'Eventos',               path: '/admin/eventos',         icon: Calendar,        permissao: 'eventos' },
   { name: 'Banners',               path: '/admin/banners',         icon: Image,           permissao: 'banners' },

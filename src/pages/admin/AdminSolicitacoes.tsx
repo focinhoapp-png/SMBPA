@@ -198,11 +198,11 @@ export default function AdminSolicitacoes() {
 
   return (
     <div className="space-y-6">
-      <AdminPageHeader title="Solicitacoes" subtitle="Aprovacoes pendentes e pedidos de adocao especiais" />
+      <AdminPageHeader title="Solicitações" subtitle="Aprovações pendentes e pedidos de adoção especiais" />
 
       <div className="flex gap-2 border-b border-gray-100 overflow-x-auto pb-px">
         <button onClick={() => setActiveTab('pets')} className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === 'pets' ? 'border-guapi-green text-guapi-green' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
-          <Inbox className="w-4 h-4" /> Aprovacao de Pets
+          <Inbox className="w-4 h-4" /> Aprovação de Pets
           {petsTotal > 0 && <span className={`px-2 py-0.5 rounded-full text-[10px] ml-1 ${activeTab === 'pets' ? 'bg-guapi-green text-white' : 'bg-gray-200 text-gray-700'}`}>{petsTotal}</span>}
         </button>
         <button onClick={() => setActiveTab('sonhos')} className={`flex items-center gap-2 px-5 py-3 text-sm font-bold border-b-2 transition-all whitespace-nowrap ${activeTab === 'sonhos' ? 'border-guapi-green text-guapi-green' : 'border-transparent text-gray-500 hover:text-gray-700'}`}>
@@ -219,7 +219,7 @@ export default function AdminSolicitacoes() {
               <div className="text-center py-16">
                 <div className="w-16 h-16 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-4"><CheckCircle className="w-8 h-8 text-green-400" /></div>
                 <h3 className="text-lg font-bold text-gray-800 mb-1">Tudo em dia!</h3>
-                <p className="text-gray-500 text-sm">Nenhum pet pendente de aprovacao no momento.</p>
+                <p className="text-gray-500 text-sm">Nenhum pet pendente de aprovação no momento.</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
