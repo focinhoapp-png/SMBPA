@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Search, Save, Trash2, Printer, PlusCircle, X } from 'lucide-react';
 import { adminObterPetDetalhes } from '../../lib/api/admin';
+import { supabase } from '../../lib/supabase';
 
 const TABS = [
   'Dados do animal',
@@ -14,6 +15,7 @@ export default function AdminAnimalDetalhes() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [pet, setPet] = useState<any>(null);
+  const [owner, setOwner] = useState<any>({});
   const [loading, setLoading] = useState(true);
   const [isModalVacinaOpen, setIsModalVacinaOpen] = useState(false);
 
@@ -21,7 +23,27 @@ export default function AdminAnimalDetalhes() {
     if (id) {
       setLoading(true);
       adminObterPetDetalhes(id)
-        .then(setPet)
+        .then(async (petData) => {
+          setPet(petData);
+
+          if (!petData?.tutor_id) return;
+
+          // 1. Tenta usar o join (pode ser bloqueado por RLS)
+          if (petData?.usuarios && Object.keys(petData.usuarios).length > 0) {
+            setOwner(petData.usuarios);
+            return;
+          }
+
+          // 2. Usa RPC com SECURITY DEFINER para bypassar o RLS
+          const { data: rpcData, error: rpcError } = await supabase
+            .rpc('get_pet_owner', { p_tutor_id: petData.tutor_id });
+
+          console.log('[RPC] rpcData:', rpcData, 'rpcError:', rpcError);
+
+          if (rpcData) {
+            setOwner(rpcData);
+          }
+        })
         .catch(err => {
           console.error(err);
           alert('Erro ao carregar os dados do pet.');
@@ -38,7 +60,7 @@ export default function AdminAnimalDetalhes() {
     return <div className="text-center py-20 text-red-500">Animal não encontrado.</div>;
   }
 
-  const owner = pet.usuarios || {};
+  // owner é gerenciado pelo estado acima
 
   return (
     <div className="max-w-6xl mx-auto">

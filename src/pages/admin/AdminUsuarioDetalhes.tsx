@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ChevronDown, PawPrint } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 export default function AdminUsuarioDetalhes() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [usuario, setUsuario] = useState<any>(null);
+  const [animais, setAnimais] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingAnimais, setLoadingAnimais] = useState(false);
   const [activeTab, setActiveTab] = useState('dados');
 
   useEffect(() => {
@@ -30,6 +32,21 @@ export default function AdminUsuarioDetalhes() {
       loadUser();
     }
   }, [id]);
+
+  useEffect(() => {
+    if (activeTab === 'animais' && id) {
+      setLoadingAnimais(true);
+      supabase
+        .from('pets')
+        .select('id, nome, especie, raca, sexo, status, imagem_principal_url')
+        .eq('tutor_id', id)
+        .order('created_at', { ascending: false })
+        .then(({ data, error }) => {
+          if (!error) setAnimais(data || []);
+        })
+        .finally(() => setLoadingAnimais(false));
+    }
+  }, [activeTab, id]);
 
   if (loading) {
     return <div className="p-8 text-center text-gray-500">Carregando...</div>;
@@ -178,7 +195,69 @@ export default function AdminUsuarioDetalhes() {
           )}
 
           {activeTab === 'animais' && (
-            <div className="text-gray-500 text-sm">Lista de animais do proprietário (em desenvolvimento).</div>
+            <div>
+              {loadingAnimais ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="w-8 h-8 border-4 border-guapi-green border-t-transparent rounded-full animate-spin" />
+                </div>
+              ) : animais.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <PawPrint className="w-12 h-12 text-gray-200 mb-3" />
+                  <p className="text-gray-400 font-medium">Nenhum animal cadastrado</p>
+                  <p className="text-gray-400 text-sm">Este proprietário ainda não possui animais registrados.</p>
+                </div>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead className="bg-gray-50 border-b border-gray-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Animal</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Espécie</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Raça</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Sexo</th>
+                      <th className="px-4 py-3 text-left text-xs font-bold uppercase tracking-wider text-gray-400">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {animais.map((animal) => (
+                      <tr
+                        key={animal.id}
+                        onClick={() => navigate(`/admin/lista-animais/${animal.id}`)}
+                        className="hover:bg-gray-50 cursor-pointer transition-colors"
+                      >
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            {animal.imagem_principal_url ? (
+                              <img src={animal.imagem_principal_url} alt={animal.nome} className="w-9 h-9 rounded-full object-cover border border-gray-100" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-gray-100 flex items-center justify-center">
+                                <PawPrint className="w-4 h-4 text-gray-300" />
+                              </div>
+                            )}
+                            <span className="font-semibold text-gray-800">{animal.nome}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-gray-600 capitalize">{animal.especie || '—'}</td>
+                        <td className="px-4 py-3 text-gray-600">{animal.raca || '—'}</td>
+                        <td className="px-4 py-3 text-gray-600 capitalize">{animal.sexo || '—'}</td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            animal.status === 'adotado' ? 'bg-green-100 text-green-700' :
+                            animal.status === 'disponivel' ? 'bg-blue-100 text-blue-700' :
+                            animal.status === 'em_processo' ? 'bg-yellow-100 text-yellow-700' :
+                            'bg-gray-100 text-gray-600'
+                          }`}>
+                            {animal.status === 'adotado' ? 'Adotado' :
+                             animal.status === 'disponivel' ? 'Disponível' :
+                             animal.status === 'em_processo' ? 'Em processo' :
+                             animal.status || 'Cadastrado'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           )}
 
           {activeTab === 'historico' && (

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { adminListarUsuarios } from '../../lib/api/admin';
-import { Plus, X, Check, Send, Trash2, Users } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { Plus, Trash2, Users } from 'lucide-react';
 import AdminUserModal from '../../components/admin/AdminUserModal';
 import AdminPageHeader from '../../components/admin/AdminPageHeader';
 
@@ -21,12 +21,13 @@ export default function AdminUsuarios() {
 
   const loadUsuarios = () => {
     setLoading(true);
-    adminListarUsuarios(page, 50, 'fisica')
-      .then(({ usuarios, total }) => {
-        setUsuarios(usuarios || []);
-        setTotal(total);
+    supabase
+      .rpc('listar_proprietarios', { p_limit: 50, p_offset: (page - 1) * 50 })
+      .then(({ data, error }) => {
+        if (error) { console.error(error); return; }
+        setUsuarios(data?.usuarios || []);
+        setTotal(data?.total || 0);
       })
-      .catch(console.error)
       .finally(() => setLoading(false));
   };
 

@@ -250,10 +250,6 @@ export default function Castracao() {
                   <span class="field-label">Data da cirurgia:</span>
                   <span class="field-value">${dateStr}</span>
                 </div>
-                <div class="field">
-                  <span class="field-label">Horário de chegada:</span>
-                  <span class="field-value">${clinicaSelecionada?.horario || ''}</span>
-                </div>
               </div>
               <div class="fields-row">
                 <div class="field">
@@ -527,7 +523,7 @@ export default function Castracao() {
                           className="w-full text-left px-4 py-3 hover:bg-guapi-green/5 text-sm text-gray-700 border-b last:border-0 border-gray-100 transition-colors"
                         >
                           <div className="font-semibold">{c.nome}</div>
-                          <div className="text-xs text-gray-500 mt-0.5">{c.bairro} · {c.dias} · {c.horario}</div>
+                          <div className="text-xs text-gray-500 mt-0.5">{c.bairro} · {c.dias}</div>
                         </button>
                       ))
                     )}
@@ -556,12 +552,7 @@ export default function Castracao() {
                     </div>
                   </div>
 
-                  {/* Horário */}
-                  <div className="flex items-center gap-2 mb-6 pb-5 border-b border-gray-100">
-                    <Clock className="w-4 h-4 text-guapi-orange shrink-0" />
-                    <span className="font-semibold text-sm text-gray-700">Horário: </span>
-                    <span className="text-sm text-gray-600">{clinicaSelecionada.dias} – {clinicaSelecionada.horario}</span>
-                  </div>
+
 
                   {/* Calendário */}
                   <div className="mb-6">
@@ -742,10 +733,6 @@ export default function Castracao() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-gray-700 w-32">Data da cirurgia:</span>
                   <span className="text-gray-600 font-medium">{dataSelecionada ? new Date(dataSelecionada + 'T00:00:00').toLocaleDateString('pt-BR') : ''}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-gray-700 w-32">Horário de chegada:</span>
-                  <span className="text-gray-600 font-medium">{clinicaSelecionada?.horario}</span>
                 </div>
               </div>
               
